@@ -8,12 +8,15 @@
 # ifndef GRAPHICS_GFX_H
 #  include <graphics/gfx.h>
 # endif
+# ifndef GRAPHICS_RASTPORT_H
+#  include <graphics/rastport.h>
+# endif
 
 CAIRO_BEGIN_DECLS
 
 cairo_public cairo_surface_t *
 cairo_amigaos_surface_create (struct BitMap *bitmap);
-cairo_surface_t *
+cairo_public cairo_surface_t *
 cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
                                             int              xoff,
                                             int              yoff,

@@ -36,7 +36,7 @@ _cairo_amigaos_surface_finish (void *abstract_surface)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_surface_t *
+static cairo_surface_t *
 _cairo_amigaos_surface_create_similar(void            *abstract_surface,
                                       cairo_content_t  content,
                                       int              width,
