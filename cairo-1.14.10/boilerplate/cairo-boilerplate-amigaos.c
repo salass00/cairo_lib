@@ -1,21 +1,23 @@
 #include "cairo-boilerplate-private.h"
 
-#include <cairo-amigaos.h>
+#include <cairo-amigaos-private.h>
 
 #include <proto/graphics.h>
 
-cairo_surface_t *
+static cairo_surface_t *
 _cairo_boilerplate_amigaos_create_surface (const char                *name,
                                            cairo_content_t            content,
-                                           int                        width,
-                                           int                        height,
+                                           double                     width,
+                                           double                     height,
+                                           double                     max_width,
+                                           double                     max_height,
                                            cairo_boilerplate_mode_t   mode,
                                            void                     **closure)
 {
-	cairo_surface_t *surface;
-	int              depth;
-	uint32           pixfmt;
-	struct BitMap   *bitmap;
+	cairo_amigaos_surface_t *surface;
+	int                      depth;
+	uint32                   pixfmt;
+	struct BitMap           *bitmap;
 
 	switch (content) {
 		case CAIRO_CONTENT_COLOR:
@@ -40,6 +42,8 @@ _cairo_boilerplate_amigaos_create_surface (const char                *name,
 
 	surface = (cairo_amigaos_surface_t *)cairo_amigaos_surface_create(bitmap);
 	surface->free_bitmap = TRUE;
+
+	*closure = NULL;
 
 	return &surface->base;
 }

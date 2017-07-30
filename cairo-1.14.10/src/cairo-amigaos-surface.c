@@ -1,22 +1,11 @@
 #include "cairoint.h"
 
-#include "cairo-amigaos.h"
+#include "cairo-amigaos-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-surface-fallback-private.h"
+#include "cairo-image-surface-private.h"
 
 #include <proto/graphics.h>
-
-typedef struct _cairo_amigaos_surface {
-	cairo_surface_t base;
-
-	struct RastPort *rastport;
-	struct BitMap   *bitmap;
-	BOOL             free_rastport:1;
-	BOOL             free_bitmap:1;
-
-	int              xoff, yoff;
-	int              width, height;
-} cairo_amigaos_surface_t;
 
 static cairo_status_t
 _cairo_amigaos_surface_finish (void *abstract_surface)
@@ -59,6 +48,7 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 			break;
 
 		case CAIRO_CONTENT_COLOR_ALPHA:
+		default:
 			depth  = 24;
 			pixfmt = PIXF_A8R8G8B8;
 			break;
@@ -73,6 +63,140 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 	surface->free_bitmap = TRUE;
 
 	return &surface->base;
+}
+
+static cairo_surface_t *
+_cairo_amigaos_surface_create_similar_image (void           *abstract_surface,
+                                             cairo_format_t  format,
+                                             int             width,
+                                             int             height)
+{
+	return NULL;
+}
+
+static cairo_image_surface_t *
+_cairo_amigaos_surface_map_to_image (void                        *abstract_surface,
+                                     const cairo_rectangle_int_t *extents)
+{
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	int                      x, y, width, height;
+	uint32                   pixfmt;
+	cairo_format_t           format;
+	int                      bpp, stride;
+	uint8_t                 *data;
+	cairo_image_surface_t   *image;
+
+	if (extents) {
+		x      = extents->x;
+		y      = extents->y;
+		width  = extents->width;
+		height = extents->height;
+	} else {
+		x      = 0;
+		y      = 0;
+		width  = surface->width;
+		height = surface->height;
+	}
+
+	surface->map_rect.x      = x;
+	surface->map_rect.y      = y;
+	surface->map_rect.width  = width;
+	surface->map_rect.height = height;
+
+	switch (surface->content) {
+		case CAIRO_CONTENT_COLOR:
+			bpp    = 3;
+			pixfmt = PIXF_R8G8B8;
+			format = CAIRO_FORMAT_RGB24;
+			break;
+
+		case CAIRO_CONTENT_ALPHA:
+			bpp    = 1;
+			pixfmt = PIXF_ALPHA8;
+			format = CAIRO_FORMAT_A8;
+			break;
+
+		case CAIRO_CONTENT_COLOR_ALPHA:
+		default:
+			bpp    = 4;
+			pixfmt = PIXF_A8R8G8B8;
+			format = CAIRO_FORMAT_ARGB32;
+			break;
+	}
+
+	stride = width * bpp;
+	data   = (uint8_t *)malloc(height * stride);
+
+	IGraphics->ReadPixelArray(surface->rastport, surface->xoff + x, surface->yoff + y,
+	                          data, 0, 0, stride, pixfmt,
+	                          width, height);
+
+	image = (cairo_image_surface_t *)cairo_image_surface_create_for_data(data, format,
+	                                                                     width, height,
+	                                                                     stride);
+
+	surface->map_image = image;
+
+	return image;
+}
+
+static cairo_int_status_t
+_cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
+                                    cairo_image_surface_t *image)
+{
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	int                      x, y, width, height;
+	uint32                   pixfmt;
+	int                      bpp, stride;
+	uint8                   *data;
+
+	x      = surface->map_rect.x;
+	y      = surface->map_rect.y;
+	width  = surface->map_rect.width;
+	height = surface->map_rect.height;
+
+	switch (surface->content) {
+		case CAIRO_CONTENT_COLOR:
+			bpp    = 3;
+			pixfmt = PIXF_R8G8B8;
+			break;
+
+		case CAIRO_CONTENT_ALPHA:
+			bpp    = 1;
+			pixfmt = PIXF_ALPHA8;
+			break;
+
+		case CAIRO_CONTENT_COLOR_ALPHA:
+		default:
+			bpp    = 4;
+			pixfmt = PIXF_A8R8G8B8;
+			break;
+	}
+
+	stride = width * bpp;
+	data   = image->data;
+
+	IGraphics->WritePixelArray(data, 0, 0, stride, pixfmt,
+	                           surface->rastport, surface->xoff + x, surface->yoff + y,
+	                           width, height);
+
+	cairo_surface_destroy(&image->base);
+
+	return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_bool_t
+_cairo_amigaos_surface_get_extents (void                  *abstract_surface,
+                                    cairo_rectangle_int_t *rectangle)
+{
+	cairo_amigaos_surface_t *surface = abstract_surface;
+
+	rectangle->x      = 0;
+	rectangle->y      = 0;
+	rectangle->width  = surface->width;
+	rectangle->height = surface->height;
+
+	return TRUE;
 }
 
 static const cairo_surface_backend_t cairo_amigaos_surface_backend = {
@@ -137,7 +261,6 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	cairo_amigaos_surface_t *surface;
 	struct BitMap           *bitmap;
 	uint32                   pixfmt;
-	cairo_content_t          content;
 
 	bitmap = rastport->BitMap;
 
@@ -156,24 +279,24 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	pixfmt = IGraphics->GetBitMapAttr(bitmap, BMA_PIXELFORMAT);
 
 	switch (pixfmt) {
+		case PIXF_ALPHA8:
+		case PIXF_CLUT:
+			surface->content = CAIRO_CONTENT_ALPHA;
+			break;
+
 		case PIXF_A8R8G8B8:
 		case PIXF_R8G8B8A8:
 		case PIXF_B8G8R8A8:
 		case PIXF_A8B8G8R8:
-			content = CAIRO_CONTENT_COLOR_ALPHA;
-			break;
-
-		case PIXF_ALPHA8:
-		case PIXF_CLUT:
-			content = CAIRO_CONTENT_ALPHA;
+			surface->content = CAIRO_CONTENT_COLOR_ALPHA;
 			break;
 
 		default:
-			content = CAIRO_CONTENT_COLOR;
+			surface->content = CAIRO_CONTENT_COLOR;
 			break;
 	}
 
-	_cairo_surface_init(&surface->base, &cairo_amigaos_surface_backend, NULL, content);
+	_cairo_surface_init(&surface->base, &cairo_amigaos_surface_backend, NULL, surface->content);
 
 	return &surface->base;
 }
