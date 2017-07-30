@@ -234,32 +234,32 @@ _cairo_amigaos_surface_get_extents (void                  *abstract_surface,
 }
 
 static const cairo_surface_backend_t cairo_amigaos_surface_backend = {
-	CAIRO_SURFACE_TYPE_AMIGAOS,
-	_cairo_amigaos_surface_finish,
-	_cairo_default_context_create,
-	_cairo_amigaos_surface_create_similar,
-	_cairo_amigaos_surface_create_similar_image,
-	_cairo_amigaos_surface_map_to_image,
-	_cairo_amigaos_surface_unmap_image,
-	_cairo_surface_default_source,
-    _cairo_surface_default_acquire_source_image,
-    _cairo_surface_default_release_source_image,
-	NULL, /* snapshot */
-	NULL, /* copy_page */
-	NULL, /* show_page */
-	_cairo_amigaos_surface_get_extents,
-	NULL, /* get_font_options */
-	NULL, /* flush */
-	NULL, /* mark_dirty_rectangle */
-	_cairo_surface_fallback_paint,
-	_cairo_surface_fallback_mask,
-	_cairo_surface_fallback_stroke,
-	_cairo_surface_fallback_fill,
-	NULL,  /* fill/stroke */
-	_cairo_surface_fallback_glyphs,
-	FALSE,
-	NULL, /* show_text_glyphs */
-	NULL, /* get_supported_mime_types */
+	.type                     = CAIRO_SURFACE_TYPE_AMIGAOS,
+	.finish                   = _cairo_amigaos_surface_finish,
+	.create_context           = _cairo_default_context_create,
+	.create_similar           = _cairo_amigaos_surface_create_similar,
+	.create_similar_image     = _cairo_amigaos_surface_create_similar_image,
+	.map_to_image             = _cairo_amigaos_surface_map_to_image,
+	.unmap_image              = _cairo_amigaos_surface_unmap_image,
+	.source                   = _cairo_surface_default_source,
+    .acquire_source_image     = _cairo_surface_default_acquire_source_image,
+    .release_source_image     = _cairo_surface_default_release_source_image,
+	.snapshot                 = NULL,
+	.copy_page                = NULL,
+	.show_page                = NULL,
+	.get_extents              = _cairo_amigaos_surface_get_extents,
+	.get_font_options         = NULL,
+	.flush                    = NULL,
+	.mark_dirty_rectangle     = NULL,
+	.paint                    = _cairo_surface_fallback_paint,
+	.mask                     = _cairo_surface_fallback_mask,
+	.stroke                   = _cairo_surface_fallback_stroke,
+	.fill                     = _cairo_surface_fallback_fill,
+	.fill_stroke              = NULL,
+	.show_glyphs              = _cairo_surface_fallback_glyphs,
+	.has_show_text_glyphs     = FALSE,
+	.show_text_glyphs         = NULL,
+	.get_supported_mime_types = NULL
 };
 
 cairo_surface_t *
