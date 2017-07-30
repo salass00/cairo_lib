@@ -32,6 +32,8 @@
 
 #include "cairoint.h"
 
+#define DEBUG_AMIGAOS_SURFACES 1
+
 typedef struct _cairo_amigaos_surface {
 	cairo_surface_t base;
 
@@ -48,5 +50,12 @@ typedef struct _cairo_amigaos_surface {
 	cairo_image_surface_t *map_image;
 	cairo_rectangle_int_t  map_rect;
 } cairo_amigaos_surface_t;
+
+#if DEBUG_AMIGAOS_SURFACES
+void _cairo_amigaos_debugf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+#define debugf(fmt, ...) _cairo_amigaos_debugf(fmt, # __VA_ARGS__)
+#else
+#define debugf(fmt, ...)
+#endif
 
 #endif /* CAIRO_AMIGAOS_PRIVATE_H */

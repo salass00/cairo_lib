@@ -34,10 +34,28 @@
 
 #include <proto/graphics.h>
 
+#if DEBUG_AMIGAOS_SURFACES
+#include <stdio.h>
+
+void _cairo_amigaos_debugf(const char *fmt, ...)
+{
+	char buffer[256];
+	va_list ap;
+
+	va_start(ap, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, va_arg(ap, void *));
+	va_end(ap);
+
+	IExec->DebugPrintF("%s", buffer);
+}
+#endif
+
 static cairo_status_t
 _cairo_amigaos_surface_finish (void *abstract_surface)
 {
 	cairo_amigaos_surface_t *surface = abstract_surface;
+
+	debugf("_cairo_amigaos_surface_finish(%p)\n", abstract_surface);
 
 	if (surface->free_rastport) {
 		free(surface->rastport);
@@ -62,6 +80,9 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 	int                      depth;
 	uint32                   pixfmt;
 	struct BitMap           *bitmap;
+
+	debugf("_cairo_amigaos_surface_create_similar(%p, %d, %d, %d)\n",
+	       abstract_surface, content, width, height);
 
 	switch (content) {
 		case CAIRO_CONTENT_COLOR:
@@ -100,7 +121,9 @@ _cairo_amigaos_surface_create_similar_image (void           *abstract_surface,
                                              int             width,
                                              int             height)
 {
-	IExec->DebugPrintF("_cairo_amigaos_surface_create_similiar_image not implemented!\n");
+	debugf("_cairo_amigaos_surface_create_similiar_image(%p, %d, %d, %d)\n",
+	        abstract_surface, format, width, height);
+
 	return NULL;
 }
 
@@ -115,6 +138,9 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	int                      bpp, stride;
 	uint8_t                 *data;
 	cairo_image_surface_t   *image;
+
+	debugf("_cairo_amigaos_surface_map_to_image(%p, %p)\n",
+	       abstract_surface, extents);
 
 	if (extents) {
 		x      = extents->x;
@@ -182,6 +208,9 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 	int                      bpp, stride;
 	uint8                   *data;
 
+	debugf("_cairo_amigaos_surface_unmap_image(%p, %p)\n",
+	       abstract_surface, image);
+
 	x      = surface->map_rect.x;
 	y      = surface->map_rect.y;
 	width  = surface->map_rect.width;
@@ -224,6 +253,9 @@ _cairo_amigaos_surface_get_extents (void                  *abstract_surface,
                                     cairo_rectangle_int_t *rectangle)
 {
 	cairo_amigaos_surface_t *surface = abstract_surface;
+
+	debugf("_cairo_amigaos_surface_get_extents(%p, %p)\n",
+	       abstract_surface, rectangle);
 
 	rectangle->x      = 0;
 	rectangle->y      = 0;
@@ -269,6 +301,8 @@ cairo_amigaos_surface_create (struct BitMap *bitmap)
 	int                      width, height;
 	struct RastPort         *rastport;
 
+	debugf("cairo_amigaos_surface_create(%p)\n", bitmap);
+
 	surface = (cairo_amigaos_surface_t *)malloc(sizeof(cairo_amigaos_surface_t));
 
 	width  = IGraphics->GetBitMapAttr(bitmap, BMA_ACTUALWIDTH);
@@ -295,6 +329,8 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	cairo_amigaos_surface_t *surface;
 	struct BitMap           *bitmap;
 	uint32                   pixfmt;
+
+	debugf("cairo_amigaos_surface_create_from_rastport(%p, %d, %d, %d, %d)\n", rastport, xoff, yoff, width, height);
 
 	bitmap = rastport->BitMap;
 

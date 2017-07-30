@@ -46,6 +46,9 @@ _cairo_boilerplate_amigaos_create_surface (const char                *name,
 	uint32                   pixfmt;
 	struct BitMap           *bitmap;
 
+	debugf("_cairo_boilerplate_amigaos_create_surface('%s', %d, %f, %f, %f, %f, %d, %p)\n",
+	       name, content, width, height, max_width, max_height, mode, closure);
+
 	switch (content) {
 		case CAIRO_CONTENT_COLOR:
 			depth  = 24;
