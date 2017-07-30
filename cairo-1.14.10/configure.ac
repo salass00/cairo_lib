@@ -688,6 +688,10 @@ CAIRO_ENABLE_SURFACE_BACKEND(xml, xml, no, [
 
 dnl ===========================================================================
 
+CAIRO_ENABLE_SURFACE_BACKEND(amigaos, amigaos, no)
+
+dnl ===========================================================================
+
 CAIRO_ENABLE_FONT_BACKEND(user, user, always)
 
 dnl ===========================================================================
