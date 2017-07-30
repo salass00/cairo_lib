@@ -27,7 +27,7 @@
 
 #include "cairo-boilerplate-private.h"
 
-#include <cairo-amigaos-private.h>
+#include <amigaos/cairo-amigaos-private.h>
 
 #include <proto/graphics.h>
 

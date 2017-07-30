@@ -488,10 +488,10 @@ am__libcairo_la_SOURCES_DIST = cairo.h cairo-deprecated.h cairo-xlib.h \
 	cairo-pdf-surface-private.h cairo-svg-surface-private.h \
 	test-compositor-surface.h test-compositor-surface-private.h \
 	test-null-compositor-surface.h test-paginated-surface.h \
-	cairo-tee-surface-private.h cairo-analysis-surface.c \
-	cairo-arc.c cairo-array.c cairo-atomic.c cairo-base64-stream.c \
-	cairo-base85-stream.c cairo-bentley-ottmann.c \
-	cairo-bentley-ottmann-rectangular.c \
+	cairo-tee-surface-private.h amigaos/cairo-amigaos-private.h \
+	cairo-analysis-surface.c cairo-arc.c cairo-array.c \
+	cairo-atomic.c cairo-base64-stream.c cairo-base85-stream.c \
+	cairo-bentley-ottmann.c cairo-bentley-ottmann-rectangular.c \
 	cairo-bentley-ottmann-rectilinear.c \
 	cairo-botor-scan-converter.c cairo-boxes.c \
 	cairo-boxes-intersect.c cairo.c cairo-cache.c cairo-clip.c \
@@ -575,7 +575,7 @@ am__libcairo_la_SOURCES_DIST = cairo.h cairo-deprecated.h cairo-xlib.h \
 	test-compositor-surface.c test-null-compositor-surface.c \
 	test-base-compositor-surface.c test-paginated-surface.c \
 	cairo-tee-surface.c cairo-xml-surface.c \
-	cairo-amigaos-surface.c cairo-version.h
+	amigaos/cairo-amigaos-surface.c cairo-version.h
 am__objects_1 =
 @CAIRO_HAS_XLIB_SURFACE_TRUE@am__objects_2 = $(am__objects_1)
 @CAIRO_HAS_XLIB_XRENDER_SURFACE_TRUE@am__objects_3 = $(am__objects_1)
@@ -627,7 +627,7 @@ am__objects_30 = $(am__objects_28) $(am__objects_2) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_19) \
 	$(am__objects_20) $(am__objects_1) $(am__objects_21) \
 	$(am__objects_22) $(am__objects_23) $(am__objects_29) \
-	$(am__objects_24) $(am__objects_1) $(am__objects_1) \
+	$(am__objects_24) $(am__objects_1) $(am__objects_26) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1)
 am__objects_31 = cairo-cff-subset.lo cairo-scaled-font-subsets.lo \
@@ -867,9 +867,9 @@ am__libcairo_cxx_la_SOURCES_DIST = cairo.h cairo-deprecated.h \
 	cairo-pdf-surface-private.h cairo-svg-surface-private.h \
 	test-compositor-surface.h test-compositor-surface-private.h \
 	test-null-compositor-surface.h test-paginated-surface.h \
-	cairo-tee-surface-private.h cairo-qt-surface.cpp \
-	skia/cairo-skia-context.cpp skia/cairo-skia-surface.cpp \
-	cairo-beos-surface.cpp
+	cairo-tee-surface-private.h amigaos/cairo-amigaos-private.h \
+	cairo-qt-surface.cpp skia/cairo-skia-context.cpp \
+	skia/cairo-skia-surface.cpp cairo-beos-surface.cpp
 am__objects_92 = cairo-qt-surface.lo
 @CAIRO_HAS_QT_SURFACE_TRUE@am__objects_93 = $(am__objects_92)
 am__objects_94 = cairo-skia-context.lo cairo-skia-surface.lo
@@ -1698,7 +1698,8 @@ cairo_cogl_sources = cairo-cogl-surface.c \
 		     cairo-cogl-utils.c
 
 cairo_amigaos_headers = cairo-amigaos.h
-cairo_amigaos_sources = cairo-amigaos-surface.c
+cairo_amigaos_private = amigaos/cairo-amigaos-private.h
+cairo_amigaos_sources = amigaos/cairo-amigaos-surface.c
 supported_cairo_headers = $(cairo_headers) $(cairo_xlib_headers) \
 	$(cairo_xlib_xrender_headers) $(cairo_xcb_headers) \
 	$(cairo_xcb_shm_headers) $(cairo_quartz_headers) \
@@ -2561,6 +2562,13 @@ cairo-drm-gallium-surface.lo: drm/cairo-drm-gallium-surface.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='drm/cairo-drm-gallium-surface.c' object='cairo-drm-gallium-surface.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cairo-drm-gallium-surface.lo `test -f 'drm/cairo-drm-gallium-surface.c' || echo '$(srcdir)/'`drm/cairo-drm-gallium-surface.c
+
+cairo-amigaos-surface.lo: amigaos/cairo-amigaos-surface.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cairo-amigaos-surface.lo -MD -MP -MF $(DEPDIR)/cairo-amigaos-surface.Tpo -c -o cairo-amigaos-surface.lo `test -f 'amigaos/cairo-amigaos-surface.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-surface.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cairo-amigaos-surface.Tpo $(DEPDIR)/cairo-amigaos-surface.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amigaos/cairo-amigaos-surface.c' object='cairo-amigaos-surface.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cairo-amigaos-surface.lo `test -f 'amigaos/cairo-amigaos-surface.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-surface.c
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

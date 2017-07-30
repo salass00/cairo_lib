@@ -472,5 +472,6 @@ cairo_cogl_sources = cairo-cogl-surface.c \
 		     cairo-cogl-utils.c
 
 cairo_amigaos_headers = cairo-amigaos.h
-cairo_amigaos_sources = cairo-amigaos-surface.c
+cairo_amigaos_private = amigaos/cairo-amigaos-private.h
+cairo_amigaos_sources = amigaos/cairo-amigaos-surface.c
 
