@@ -61,6 +61,9 @@ _cairo_boilerplate_amigaos_create_surface (const char                *name,
 			depth  = 24;
 			pixfmt = PIXF_A8R8G8B8;
 			break;
+
+		default:
+			return NULL;
 	}
 
 	bitmap = IGraphics->AllocBitMapTags(width, height, depth,

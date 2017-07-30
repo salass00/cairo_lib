@@ -75,10 +75,12 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 			break;
 
 		case CAIRO_CONTENT_COLOR_ALPHA:
-		default:
 			depth  = 24;
 			pixfmt = PIXF_A8R8G8B8;
 			break;
+
+		default:
+			return NULL;
 	}
 
 	bitmap = IGraphics->AllocBitMapTags(width, height, depth,
@@ -98,6 +100,7 @@ _cairo_amigaos_surface_create_similar_image (void           *abstract_surface,
                                              int             width,
                                              int             height)
 {
+	IExec->DebugPrintF("_cairo_amigaos_surface_create_similiar_image not implemented!\n");
 	return NULL;
 }
 
@@ -144,11 +147,13 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 			break;
 
 		case CAIRO_CONTENT_COLOR_ALPHA:
-		default:
 			bpp    = 4;
 			pixfmt = PIXF_A8R8G8B8;
 			format = CAIRO_FORMAT_ARGB32;
 			break;
+
+		default:
+			return NULL;
 	}
 
 	stride = width * bpp;
@@ -194,10 +199,12 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 			break;
 
 		case CAIRO_CONTENT_COLOR_ALPHA:
-		default:
 			bpp    = 4;
 			pixfmt = PIXF_A8R8G8B8;
 			break;
+
+		default:
+			return _cairo_error(CAIRO_STATUS_INVALID_CONTENT);
 	}
 
 	stride = width * bpp;
