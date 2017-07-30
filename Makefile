@@ -7,7 +7,7 @@ cairo-build:
 	mkdir cairo-build
 
 cairo-build/src/.libs/libcairo.a: cairo-build
-	cd cairo-build && ../$(CAIRODIR)/configure --prefix=/SDK/local/newlib --host=ppc-amigaos --disable-shared --enable-amigaos
+	cd cairo-build && ../$(CAIRODIR)/configure --prefix=/SDK/local/newlib --host=ppc-amigaos --disable-shared --enable-amigaos LIBS=-lauto
 	$(MAKE) -C cairo-build
 
 .PHONY: clean
