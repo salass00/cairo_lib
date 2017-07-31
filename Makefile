@@ -25,3 +25,7 @@ build-cairo: cairo-build/Makefile
 clean:
 	rm -rf cairo-build
 
+.PHONY: install
+install: cairo-build/Makefile
+	$(MAKE) -C cairo-build install
+
