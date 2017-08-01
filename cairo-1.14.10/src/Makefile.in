@@ -575,6 +575,7 @@ am__libcairo_la_SOURCES_DIST = cairo.h cairo-deprecated.h cairo-xlib.h \
 	test-compositor-surface.c test-null-compositor-surface.c \
 	test-base-compositor-surface.c test-paginated-surface.c \
 	cairo-tee-surface.c cairo-xml-surface.c \
+	amigaos/cairo-amigaos-compositor.c \
 	amigaos/cairo-amigaos-surface.c cairo-version.h
 am__objects_1 =
 @CAIRO_HAS_XLIB_SURFACE_TRUE@am__objects_2 = $(am__objects_1)
@@ -763,7 +764,7 @@ am__objects_85 = cairo-tee-surface.lo
 @CAIRO_HAS_TEE_SURFACE_TRUE@am__objects_86 = $(am__objects_85)
 am__objects_87 = cairo-xml-surface.lo
 @CAIRO_HAS_XML_SURFACE_TRUE@am__objects_88 = $(am__objects_87)
-am__objects_89 = cairo-amigaos-surface.lo
+am__objects_89 = cairo-amigaos-compositor.lo cairo-amigaos-surface.lo
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__objects_90 = $(am__objects_89)
 am__objects_91 = $(am__objects_34) $(am__objects_36) $(am__objects_1) \
 	$(am__objects_38) $(am__objects_1) $(am__objects_1) \
@@ -1699,7 +1700,9 @@ cairo_cogl_sources = cairo-cogl-surface.c \
 
 cairo_amigaos_headers = cairo-amigaos.h
 cairo_amigaos_private = amigaos/cairo-amigaos-private.h
-cairo_amigaos_sources = amigaos/cairo-amigaos-surface.c
+cairo_amigaos_sources = amigaos/cairo-amigaos-compositor.c \
+                        amigaos/cairo-amigaos-surface.c
+
 supported_cairo_headers = $(cairo_headers) $(cairo_xlib_headers) \
 	$(cairo_xlib_xrender_headers) $(cairo_xcb_headers) \
 	$(cairo_xcb_shm_headers) $(cairo_quartz_headers) \
@@ -2138,6 +2141,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-compositor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-surface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-analysis-surface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-arc.Plo@am__quote@
@@ -2562,6 +2566,13 @@ cairo-drm-gallium-surface.lo: drm/cairo-drm-gallium-surface.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='drm/cairo-drm-gallium-surface.c' object='cairo-drm-gallium-surface.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cairo-drm-gallium-surface.lo `test -f 'drm/cairo-drm-gallium-surface.c' || echo '$(srcdir)/'`drm/cairo-drm-gallium-surface.c
+
+cairo-amigaos-compositor.lo: amigaos/cairo-amigaos-compositor.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cairo-amigaos-compositor.lo -MD -MP -MF $(DEPDIR)/cairo-amigaos-compositor.Tpo -c -o cairo-amigaos-compositor.lo `test -f 'amigaos/cairo-amigaos-compositor.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-compositor.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cairo-amigaos-compositor.Tpo $(DEPDIR)/cairo-amigaos-compositor.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amigaos/cairo-amigaos-compositor.c' object='cairo-amigaos-compositor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cairo-amigaos-compositor.lo `test -f 'amigaos/cairo-amigaos-compositor.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-compositor.c
 
 cairo-amigaos-surface.lo: amigaos/cairo-amigaos-surface.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cairo-amigaos-surface.lo -MD -MP -MF $(DEPDIR)/cairo-amigaos-surface.Tpo -c -o cairo-amigaos-surface.lo `test -f 'amigaos/cairo-amigaos-surface.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-surface.c

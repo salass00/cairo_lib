@@ -58,4 +58,6 @@ void _cairo_amigaos_debugf(const char *fmt, ...) __attribute__((format(printf, 1
 #define debugf(fmt, ...)
 #endif
 
+extern const cairo_compositor_t _cairo_amigaos_compositor;
+
 #endif /* CAIRO_AMIGAOS_PRIVATE_H */

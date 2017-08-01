@@ -25,7 +25,69 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "cairoint.h"
+
 #include "cairo-amigaos-private.h"
+#include "cairo-compositor-private.h"
+
+static cairo_int_status_t
+_cairo_amigaos_compositor_paint (const cairo_compositor_t     *_compositor,
+                                 cairo_composite_rectangles_t *extents)
+{
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+
+	return status;
+}
+
+static cairo_int_status_t
+_cairo_amigaos_compositor_mask (const cairo_compositor_t     *_compositor,
+                                cairo_composite_rectangles_t *extents)
+{
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+
+	return status;
+}
+
+static cairo_int_status_t
+_cairo_amigaos_compositor_stroke (const cairo_compositor_t     *_compositor,
+                                  cairo_composite_rectangles_t *extents,
+                                  const cairo_path_fixed_t     *path,
+                                  const cairo_stroke_style_t   *style,
+                                  const cairo_matrix_t         *ctm,
+                                  const cairo_matrix_t         *ctm_inverse,
+                                  double                        tolerance,
+                                  cairo_antialias_t             antialias)
+{
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+
+	return status;
+}
+
+static cairo_int_status_t
+_cairo_amigaos_compositor_fill (const cairo_compositor_t     *_compositor,
+                                cairo_composite_rectangles_t *extents,
+                                const cairo_path_fixed_t     *path,
+                                cairo_fill_rule_t             fill_rule,
+                                double                        tolerance,
+                                cairo_antialias_t             antialias)
+{
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+
+	return status;
+}
+
+static cairo_int_status_t
+_cairo_amigaos_compositor_glyphs (const cairo_compositor_t     *_compositor,
+                                  cairo_composite_rectangles_t *extents,
+                                  cairo_scaled_font_t          *scaled_font,
+                                  cairo_glyph_t                *glyphs,
+                                  int                           num_glyphs,
+                                  cairo_bool_t                  overlap)
+{
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+
+	return status;
+}
 
 const cairo_compositor_t _cairo_amigaos_compositor = {
 	.delegate = &_cairo_fallback_compositor,

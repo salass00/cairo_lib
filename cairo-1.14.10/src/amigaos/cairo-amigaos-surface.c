@@ -274,7 +274,7 @@ _cairo_amigaos_surface_paint (void                  *surface,
 	debugf("_cairo_amigaos_surface_paint(%p, %d, %p, %p)\n",
 	       surface, op, source, clip);
 
-	return _cairo_compositor_paint (&_cairo_fallback_compositor,
+	return _cairo_compositor_paint (&_cairo_amigaos_compositor,
 	                                surface, op, source, clip);
 }
 
@@ -288,7 +288,7 @@ _cairo_amigaos_surface_mask (void                  *surface,
 	debugf("_cairo_amigaos_surface_mask(%p, %d, %p, %p, %p)\n",
 	       surface, op, source, mask, clip);
 
-	return _cairo_compositor_mask (&_cairo_fallback_compositor,
+	return _cairo_compositor_mask (&_cairo_amigaos_compositor,
 	                               surface, op, source, mask, clip);
 }
 
@@ -307,7 +307,7 @@ _cairo_amigaos_surface_stroke (void                       *surface,
 	debugf("_cairo_amigaos_surface_stroke(%p, %d, %p, %p, %p, %p, %p, %f, %d, %p)\n",
 	       surface, op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
 
-	return _cairo_compositor_stroke (&_cairo_fallback_compositor,
+	return _cairo_compositor_stroke (&_cairo_amigaos_compositor,
 	                                 surface, op, source, path,
 	                                 style, ctm,ctm_inverse,
 	                                 tolerance, antialias, clip);
@@ -326,7 +326,7 @@ _cairo_amigaos_surface_fill (void                     *surface,
 	debugf("_cairo_amigaos_surface_fill(%p, %d, %p, %p, %d, %f, %d, %p)\n",
 	       surface, op, source, path, fill_rule, tolerance, antialias, clip);
 
-	return _cairo_compositor_fill (&_cairo_fallback_compositor,
+	return _cairo_compositor_fill (&_cairo_amigaos_compositor,
 	                               surface, op, source, path,
 	                               fill_rule, tolerance, antialias,
 	                               clip);
@@ -344,7 +344,7 @@ _cairo_amigaos_surface_glyphs (void                  *surface,
 	debugf("_cairo_amigaos_surface_glyphs(%p, %d, %p, %p, %d, %p, %p)\n",
 	       surface, op, source, glyphs, num_glyphs, scaled_font, clip);
 
-	return _cairo_compositor_glyphs (&_cairo_fallback_compositor,
+	return _cairo_compositor_glyphs (&_cairo_amigaos_compositor,
 	                                 surface, op, source,
 	                                 glyphs, num_glyphs, scaled_font,
 	                                 clip);

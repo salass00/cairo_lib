@@ -1140,7 +1140,9 @@ cairo_cogl_sources = cairo-cogl-surface.c \
 
 cairo_amigaos_headers = cairo-amigaos.h
 cairo_amigaos_private = amigaos/cairo-amigaos-private.h
-cairo_amigaos_sources = amigaos/cairo-amigaos-surface.c
+cairo_amigaos_sources = amigaos/cairo-amigaos-compositor.c \
+                        amigaos/cairo-amigaos-surface.c
+
 supported_cairo_headers = $(cairo_headers) $(cairo_xlib_headers) \
 	$(cairo_xlib_xrender_headers) $(cairo_xcb_headers) \
 	$(cairo_xcb_shm_headers) $(cairo_quartz_headers) \
