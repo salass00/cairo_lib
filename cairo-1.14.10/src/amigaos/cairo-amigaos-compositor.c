@@ -25,37 +25,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CAIRO_AMIGAOS_PRIVATE_H
-#define CAIRO_AMIGAOS_PRIVATE_H
+#include "cairo-amigaos-private.h"
 
-#include "cairo-amigaos.h"
+const cairo_compositor_t _cairo_amigaos_compositor = {
+	.delegate = &_cairo_fallback_compositor,
+	.paint    = _cairo_amigaos_compositor_paint,
+	.mask     = _cairo_amigaos_compositor_mask,
+	.stroke   = _cairo_amigaos_compositor_stroke,
+	.fill     = _cairo_amigaos_compositor_fill,
+	.glyphs   = _cairo_amigaos_compositor_glyphs
+};
 
-#include "cairoint.h"
-
-#define DEBUG_AMIGAOS_SURFACES 1
-
-typedef struct _cairo_amigaos_surface {
-	cairo_surface_t base;
-
-	struct RastPort       *rastport;
-	struct BitMap         *bitmap;
-	BOOL                   free_rastport:1;
-	BOOL                   free_bitmap:1;
-
-	cairo_content_t        content;
-
-	int                    xoff, yoff;
-	int                    width, height;
-
-	cairo_image_surface_t *map_image;
-	cairo_rectangle_int_t  map_rect;
-} cairo_amigaos_surface_t;
-
-#if DEBUG_AMIGAOS_SURFACES
-void _cairo_amigaos_debugf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-#define debugf(fmt, args...) _cairo_amigaos_debugf(fmt, ## args)
-#else
-#define debugf(fmt, ...)
-#endif
-
-#endif /* CAIRO_AMIGAOS_PRIVATE_H */

@@ -29,7 +29,7 @@
 
 #include "cairo-amigaos-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-surface-fallback-private.h"
+#include "cairo-compositor-private.h"
 #include "cairo-image-surface-private.h"
 
 #include <proto/graphics.h>
@@ -81,8 +81,8 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 	uint32                   pixfmt;
 	struct BitMap           *bitmap;
 
-	debugf("_cairo_amigaos_surface_create_similar(%p, %d, %d, %d)\n",
-	       abstract_surface, content, width, height);
+	debugf("_cairo_amigaos_surface_create_similar(%p, 0x%x, %d, %d)\n",
+	       abstract_surface, (unsigned)content, width, height);
 
 	switch (content) {
 		case CAIRO_CONTENT_COLOR:
@@ -121,7 +121,7 @@ _cairo_amigaos_surface_create_similar_image (void           *abstract_surface,
                                              int             width,
                                              int             height)
 {
-	debugf("_cairo_amigaos_surface_create_similiar_image(%p, %d, %d, %d)\n",
+	debugf("_cairo_amigaos_surface_create_similiar_image(%p, (int)%d, %d, %d)\n",
 	        abstract_surface, format, width, height);
 
 	return NULL;
@@ -265,6 +265,91 @@ _cairo_amigaos_surface_get_extents (void                  *abstract_surface,
 	return TRUE;
 }
 
+static cairo_int_status_t
+_cairo_amigaos_surface_paint (void                  *surface,
+                              cairo_operator_t       op,
+                              const cairo_pattern_t *source,
+                              const cairo_clip_t    *clip)
+{
+	debugf("_cairo_amigaos_surface_paint(%p, %d, %p, %p)\n",
+	       surface, op, source, clip);
+
+	return _cairo_compositor_paint (&_cairo_fallback_compositor,
+	                                surface, op, source, clip);
+}
+
+static cairo_int_status_t
+_cairo_amigaos_surface_mask (void                  *surface,
+                             cairo_operator_t       op,
+                             const cairo_pattern_t *source,
+                             const cairo_pattern_t *mask,
+                             const cairo_clip_t    *clip)
+{
+	debugf("_cairo_amigaos_surface_mask(%p, %d, %p, %p, %p)\n",
+	       surface, op, source, mask, clip);
+
+	return _cairo_compositor_mask (&_cairo_fallback_compositor,
+	                               surface, op, source, mask, clip);
+}
+
+static cairo_int_status_t
+_cairo_amigaos_surface_stroke (void                       *surface,
+                               cairo_operator_t            op,
+                               const cairo_pattern_t      *source,
+                               const cairo_path_fixed_t   *path,
+                               const cairo_stroke_style_t *style,
+                               const cairo_matrix_t       *ctm,
+                               const cairo_matrix_t       *ctm_inverse,
+                               double                      tolerance,
+                               cairo_antialias_t           antialias,
+                               const cairo_clip_t         *clip)
+{
+	debugf("_cairo_amigaos_surface_stroke(%p, %d, %p, %p, %p, %p, %p, %f, %d, %p)\n",
+	       surface, op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
+
+	return _cairo_compositor_stroke (&_cairo_fallback_compositor,
+	                                 surface, op, source, path,
+	                                 style, ctm,ctm_inverse,
+	                                 tolerance, antialias, clip);
+}
+
+static cairo_int_status_t
+_cairo_amigaos_surface_fill (void                     *surface,
+                             cairo_operator_t          op,
+                             const cairo_pattern_t    *source,
+                             const cairo_path_fixed_t *path,
+                             cairo_fill_rule_t         fill_rule,
+                             double                    tolerance,
+                             cairo_antialias_t         antialias,
+                             const cairo_clip_t       *clip)
+{
+	debugf("_cairo_amigaos_surface_fill(%p, %d, %p, %p, %d, %f, %d, %p)\n",
+	       surface, op, source, path, fill_rule, tolerance, antialias, clip);
+
+	return _cairo_compositor_fill (&_cairo_fallback_compositor,
+	                               surface, op, source, path,
+	                               fill_rule, tolerance, antialias,
+	                               clip);
+}
+
+static cairo_int_status_t
+_cairo_amigaos_surface_glyphs (void                  *surface,
+                               cairo_operator_t       op,
+                               const cairo_pattern_t *source,
+                               cairo_glyph_t         *glyphs,
+                               int                    num_glyphs,
+                               cairo_scaled_font_t   *scaled_font,
+                               const cairo_clip_t    *clip)
+{
+	debugf("_cairo_amigaos_surface_glyphs(%p, %d, %p, %p, %d, %p, %p)\n",
+	       surface, op, source, glyphs, num_glyphs, scaled_font, clip);
+
+	return _cairo_compositor_glyphs (&_cairo_fallback_compositor,
+	                                 surface, op, source,
+	                                 glyphs, num_glyphs, scaled_font,
+	                                 clip);
+}
+
 static const cairo_surface_backend_t cairo_amigaos_surface_backend = {
 	.type                     = CAIRO_SURFACE_TYPE_AMIGAOS,
 	.finish                   = _cairo_amigaos_surface_finish,
@@ -283,12 +368,12 @@ static const cairo_surface_backend_t cairo_amigaos_surface_backend = {
 	.get_font_options         = NULL,
 	.flush                    = NULL,
 	.mark_dirty_rectangle     = NULL,
-	.paint                    = _cairo_surface_fallback_paint,
-	.mask                     = _cairo_surface_fallback_mask,
-	.stroke                   = _cairo_surface_fallback_stroke,
-	.fill                     = _cairo_surface_fallback_fill,
+	.paint                    = _cairo_amigaos_surface_paint,
+	.mask                     = _cairo_amigaos_surface_mask,
+	.stroke                   = _cairo_amigaos_surface_stroke,
+	.fill                     = _cairo_amigaos_surface_fill,
 	.fill_stroke              = NULL,
-	.show_glyphs              = _cairo_surface_fallback_glyphs,
+	.show_glyphs              = _cairo_amigaos_surface_glyphs,
 	.has_show_text_glyphs     = FALSE,
 	.show_text_glyphs         = NULL,
 	.get_supported_mime_types = NULL
