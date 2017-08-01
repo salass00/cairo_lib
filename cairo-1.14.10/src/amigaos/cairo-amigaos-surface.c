@@ -43,7 +43,7 @@ void _cairo_amigaos_debugf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsnprintf(buffer, sizeof(buffer), fmt, va_arg(ap, void *));
+	vsnprintf(buffer, sizeof(buffer), fmt, ap);
 	va_end(ap);
 
 	IExec->DebugPrintF("%s", buffer);
