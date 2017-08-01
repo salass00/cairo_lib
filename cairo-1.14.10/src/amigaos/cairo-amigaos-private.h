@@ -32,7 +32,7 @@
 
 #include "cairoint.h"
 
-#define DEBUG_AMIGAOS_SURFACES 1
+#define DEBUG_AMIGAOS_SURFACES 0
 
 typedef struct _cairo_amigaos_surface {
 	cairo_surface_t base;
