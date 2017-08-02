@@ -1,0 +1,60 @@
+; Script for generating a release archive
+
+make all
+
+set cairodir cairo-1.14.10
+set destdir RAM:mkrelease
+set numvers `date lformat %Y%m%d`
+
+delete all force ${destdir}
+makedir all force ${destdir}/cairo_lib-$numvers/Libs
+makedir all force ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+makedir all force ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+
+copy clone ${cairodir}/COPYING ${destdir}/cairo_lib-$numvers
+copy clone ${cairodir}/COPYING-LGPL-2.1 ${destdir}/cairo_lib-$numvers
+copy clone ${cairodir}/COPYING-MPL-1.1 ${destdir}/cairo_lib-$numvers
+copy clone ${cairodir}/src/cairo.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-amigaos.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-deprecated.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone cairo-build/src/cairo-features.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-ft.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-pdf.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-ps.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-script.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/util/cairo-script/cairo-script-interpreter.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/src/cairo-svg.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/cairo-version.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone cairo-build/src/.libs/libcairo.a ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib
+copy clone cairo-build/src/libcairo.la ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib
+copy clone cairo-build/src/cairo.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-amigaos.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-ft.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-pdf.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-png.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-ps.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-script.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+copy clone cairo-build/src/cairo-svg.pc ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
+
+echo "Short:        Cairo - 2D graphics library"          > ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+echo "Author:       Fredrik Wikstrom (AmigaOS port)"     >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+echo "Uploader:     Fredrik Wikstrom <fredrik@a500.org>" >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+echo "Type:         dev/lib"                             >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+echo "Version:      $numvers"                            >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+echo "Architecture: ppc-amigaos"                         >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+echo ""                                                  >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+type README                                              >> ${destdir}/cairo_lib-$numvers/cairo_lib.readme
+
+copy clone ENV:Sys/def_drawer.info ${destdir}/cairo_lib-$numvers.info
+copy clone ENV:Sys/def_ascii.info ${destdir}/cairo_lib-$numvers/cairo_lib.readme.info
+copy clone ENV:Sys/def_ascii.info ${destdir}/cairo_lib-$numvers/COPYING.info
+copy clone ENV:Sys/def_ascii.info ${destdir}/cairo_lib-$numvers/COPYING-LGPL-2.1.info
+copy clone ENV:Sys/def_ascii.info ${destdir}/cairo_lib-$numvers/COPYING-MPL-1.1.info
+
+delete force RAM:cairo_lib.lha
+lha a -x -r RAM:cairo_lib.lha ${destdir}/
+
+echo "RAM:cairo_lib.lha created"
+
+copy clone ${destdir}/cairo_lib-$numvers/cairo_lib.readme RAM:
+
