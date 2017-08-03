@@ -28,8 +28,10 @@
 #include "cairoint.h"
 
 #include "cairo-amigaos-private.h"
+#include "cairo-image-surface-private.h"
 
 #include <diskfont/diskfonttag.h>
+#include <diskfont/oterrors.h>
 #include <proto/diskfont.h>
 #include <proto/utility.h>
 
@@ -42,6 +44,7 @@ typedef struct _cairo_amigaos_scaled_font {
 	struct OutlineFont  *outline_font;
 
 	BOOL                 antialias:1;
+	BOOL                 ucs2_only:1;
 
 	double               xscale, yscale;
 	double               xspace;
@@ -62,6 +65,165 @@ _cairo_amigaos_scaled_font_fini (void *abstract_font)
 	font->outline_font = NULL;
 }
 
+static struct GlyphMap *
+_get_glyph_map (cairo_amigaos_scaled_font_t *font,
+                uint32_t                     unicode)
+{
+	struct EGlyphEngine *engine = &font->outline_font->olf_EEngine;
+	struct GlyphMap     *gm;
+
+	if (font->ucs2_only && unicode > 0xFFFF)
+		return NULL;
+
+	IDiskfont->ESetInfo(engine,
+	                    OT_GlyphCode, unicode,
+	                    TAG_END);
+
+	IDiskfont->EObtainInfo(engine,
+	                       font->antialias ? OT_GlyphMap8Bit : OT_GlyphMap, &gm,
+	                       TAG_END);
+
+	return gm;
+}
+
+static void
+_release_glyph_map (cairo_amigaos_scaled_font_t *font,
+                    struct GlyphMap             *gm)
+{
+	struct EGlyphEngine *engine = &font->outline_font->olf_EEngine;
+
+	if (gm == NULL)
+		return;
+
+	IDiskfont->EReleaseInfo(engine,
+	                        OT_GlyphMap, gm,
+	                        TAG_END);
+}
+
+static cairo_status_t
+_cairo_amigaos_scaled_font_glyph_init_metrics (cairo_amigaos_scaled_font_t *font,
+                                               cairo_scaled_glyph_t        *glyph,
+                                               struct GlyphMap             *gm)
+{
+	cairo_text_extents_t extents;
+
+	if (gm != NULL) {
+		extents.x_bearing = gm->glm_X0;
+		extents.y_bearing = -gm->glm_Y0;
+		extents.width     = gm->glm_BlackWidth;
+		extents.height    = gm->glm_BlackHeight;
+		extents.x_advance = FIXED_TO_FLOAT(gm->glm_Width);
+		extents.y_advance = 0;
+	} else {
+		extents.x_bearing = 0;
+		extents.y_bearing = 0;
+		extents.width     = 0;
+		extents.height    = 0;
+		extents.x_advance = font->xspace;
+		extents.y_bearing = 0;
+	}
+
+	_cairo_scaled_glyph_set_metrics(glyph, &font->base, &extents);
+
+	return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_status_t
+_cairo_amigaos_scaled_font_glyph_init_surface_a8 (cairo_amigaos_scaled_font_t *font,
+                                                  cairo_scaled_glyph_t        *glyph,
+                                                  struct GlyphMap             *gm)
+{
+	cairo_image_surface_t *surface;
+	uint8_t               *src, *dst;
+	int                    src_mod, dst_mod;
+	int                    x, y;
+
+	if (gm == NULL) {
+		surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A8, 1, 1);
+		if (surface->base.status != CAIRO_STATUS_SUCCESS)
+			return surface->base.status;
+
+		_cairo_scaled_glyph_set_surface(glyph, &font->base, surface);
+
+		return CAIRO_STATUS_SUCCESS;
+	}
+
+	surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A8,
+	                                                               gm->glm_BlackWidth,
+	                                                               gm->glm_BlackHeight);
+	if (surface->base.status != CAIRO_STATUS_SUCCESS)
+		return surface->base.status;
+
+	src = gm->glm_BitMap + (gm->glm_BMModulo * gm->glm_BlackTop) + gm->glm_BlackLeft;
+	dst = surface->data;
+
+	src_mod = gm->glm_BMModulo - gm->glm_BlackWidth;
+	dst_mod = surface->stride - gm->glm_BlackWidth;
+
+	for (y = 0; y < gm->glm_BlackHeight; y++) {
+		for (x = 0; x < gm->glm_BlackWidth; x++)
+			*dst++ = *src++;
+
+		src += src_mod;
+		dst += dst_mod;
+	}
+
+	cairo_surface_set_device_offset(&surface->base, 0, gm->glm_Y0);
+
+	_cairo_scaled_glyph_set_surface(glyph, &font->base, surface);
+
+	return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_status_t
+_cairo_amigaos_scaled_font_glyph_init_surface_a1 (cairo_amigaos_scaled_font_t *font,
+                                                  cairo_scaled_glyph_t        *glyph,
+                                                  struct GlyphMap             *gm)
+{
+	cairo_image_surface_t *surface;
+	uint8_t               *src, *dst;
+	int                    xoff, x, y;
+
+	if (gm == NULL) {
+		surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A1, 1, 1);
+		if (surface->base.status != CAIRO_STATUS_SUCCESS)
+			return surface->base.status;
+
+		_cairo_scaled_glyph_set_surface(glyph, &font->base, surface);
+
+		return CAIRO_STATUS_SUCCESS;
+	}
+
+	surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A1,
+	                                                               gm->glm_BlackWidth,
+	                                                               gm->glm_BlackHeight);
+	if (surface->base.status != CAIRO_STATUS_SUCCESS)
+		return surface->base.status;
+
+	src = gm->glm_BitMap + (gm->glm_BMModulo * gm->glm_BlackTop);
+	dst = surface->data;
+
+	xoff = gm->glm_BlackLeft;
+
+	for (y = 0; y < gm->glm_BlackHeight; y++) {
+		for (x = 0; x < gm->glm_BlackWidth; x++) {
+			if (src[(xoff + x) / 8] & (1 << (7 - ((xoff + x) % 8))))
+				dst[x / 8] |= (1 << (x % 8));
+			else
+				dst[x / 8] &= ~(1 << (x % 8));
+		}
+
+		src += gm->glm_BMModulo;
+		dst += surface->stride;
+	}
+
+	cairo_surface_set_device_offset(&surface->base, 0, gm->glm_Y0);
+
+	_cairo_scaled_glyph_set_surface(glyph, &font->base, surface);
+
+	return CAIRO_STATUS_SUCCESS;
+}
+
 static cairo_int_status_t
 _cairo_amigaos_scaled_font_glyph_init (void                      *abstract_font,
                                        cairo_scaled_glyph_t      *glyph,
@@ -70,6 +232,58 @@ _cairo_amigaos_scaled_font_glyph_init (void                      *abstract_font,
 	cairo_amigaos_scaled_font_t *font = abstract_font;
 	struct GlyphMap             *gm;
 	cairo_status_t               status;
+
+	if (info & CAIRO_SCALED_GLYPH_INFO_PATH)
+		return CAIRO_INT_STATUS_UNSUPPORTED;
+
+	gm = _get_glyph_map(font, _cairo_scaled_glyph_index(glyph));
+
+	if (info & CAIRO_SCALED_GLYPH_INFO_METRICS) {
+		status = _cairo_amigaos_scaled_font_glyph_init_metrics(font, glyph, gm);
+		if (status != CAIRO_STATUS_SUCCESS) {
+			_release_glyph_map(font, gm);
+			return status;
+		}
+	}
+
+	if (info & CAIRO_SCALED_GLYPH_INFO_SURFACE) {
+		if (font->antialias)
+			status = _cairo_amigaos_scaled_font_glyph_init_surface_a8(font, glyph, gm);
+		else
+			status = _cairo_amigaos_scaled_font_glyph_init_surface_a1(font, glyph, gm);
+
+		if (status != CAIRO_STATUS_SUCCESS) {
+			_release_glyph_map(font, gm);
+			return status;
+		}
+	}
+
+	_release_glyph_map(font, gm);
+
+	return CAIRO_STATUS_SUCCESS;
+}
+
+static int32_t
+_get_kern (cairo_amigaos_scaled_font_t *font,
+           uint32_t                     unicode,
+           uint32_t                     unicode2)
+{
+	struct EGlyphEngine *engine = &font->outline_font->olf_EEngine;
+	int32_t              kern;
+
+	if (font->ucs2_only && (unicode > 0xFFFF || unicode2 > 0xFFFF))
+		return 0;
+
+	IDiskfont->ESetInfo(engine,
+	                    OT_GlyphCode,  unicode,
+	                    OT_GlyphCode2, unicode2,
+	                    TAG_END);
+
+	IDiskfont->EObtainInfo(engine,
+	                       OT_TextKernPair, &kern,
+	                       TAG_END);
+
+	return kern;
 }
 
 static cairo_int_status_t
@@ -78,15 +292,53 @@ _cairo_amigaos_scaled_font_text_to_glyphs (void                        *abstract
                                            double                       y,
                                            const char                  *utf8,
                                            int                          utf8_len,
-                                           cairo_glyph_t              **glyph,
+                                           cairo_glyph_t              **glyphs_out,
                                            int                         *num_glyphs,
                                            cairo_text_cluster_t       **clusters,
                                            int                         *num_clusters,
                                            cairo_text_cluster_flags_t  *cluster_flags)
 {
 	cairo_amigaos_scaled_font_t *font = abstract_font;
+	uint32_t                    *ucs4;
+	int                          len, i, j;
+	cairo_glyph_t               *glyphs;
 	struct GlyphMap             *gm;
 	cairo_status_t               status;
+
+	status = _cairo_utf8_to_ucs4(utf8, -1, &ucs4, &len);
+	if (status != CAIRO_STATUS_SUCCESS)
+		return status;
+
+	glyphs = _cairo_malloc_ab(len, sizeof(cairo_glyph_t));
+
+	for (i = j = 0; i < len; i++) {
+		gm = _get_glyph_map(font, ucs4[i]);
+		if (gm == NULL) {
+			x += font->xspace;
+			continue;
+		}
+
+		if (i > 0) {
+			x -= gm->glm_X0 + FIXED_TO_FLOAT(_get_kern(font, ucs4[i - 1], ucs4[i]));
+		}
+
+		glyphs[j].index = ucs4[i];
+		glyphs[j].x     = x;
+		glyphs[j].y     = y;
+
+		x += gm->glm_X1 - gm->glm_X0;
+
+		_release_glyph_map(font, gm);
+
+		j++;
+	}
+
+	free(ucs4);
+
+	*glyphs_out = glyphs;
+	*num_glyphs = j;
+
+	return CAIRO_STATUS_SUCCESS;
 }
 
 static const cairo_scaled_font_backend_t cairo_amigaos_scaled_font_backend = {
@@ -125,16 +377,19 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 	cairo_matrix_t               scale;
 	double                       xscale, yscale;
 	struct OutlineFont          *outline_font;
+	struct EGlyphEngine         *engine;
 	cairo_amigaos_scaled_font_t *font;
 
 	cairo_matrix_multiply(&scale, font_matrix, ctm);
 	status = _cairo_matrix_compute_basis_scale_factors(&scale, &xscale, &yscale, 1);
-	if (status)
+	if (status != CAIRO_STATUS_SUCCESS)
 		return status;
 
 	outline_font = IDiskfont->OpenOutlineFont(face->filename, NULL, OFF_OPEN);
 	if (outline_font == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
+
+	engine = &outline_font->olf_EEngine;
 
 	font = malloc(sizeof(cairo_amigaos_scaled_font_t));
 
@@ -143,9 +398,18 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 	font->xscale = xscale;
 	font->yscale = yscale;
 
-	IDiskfont->ESetInfo(&outline_font->olf_EEngine,
+	IDiskfont->ESetInfo(engine,
 	                    OT_PointHeight, FLOAT_TO_FIXED(font->yscale),
 	                    TAG_END);
+
+	if (IDiskfont->ESetInfo(engine,
+	                        OT_GlyphCode_32, 'A',
+	                        TAG_END) == OTERR_UnknownTag)
+	{
+		font->ucs2_only = TRUE;
+	} else {
+		font->ucs2_only = FALSE;
+	}
 
 	font->xspace = FIXED_TO_FLOAT(IUtility->GetTagData(OT_SpaceWidth, 0, outline_font->olf_OTagList)) * font->xscale;
 
