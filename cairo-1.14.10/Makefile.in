@@ -158,7 +158,7 @@ CONFIG_CLEAN_FILES = cairo-uninstalled.pc cairo-xlib-uninstalled.pc \
 	cairo-ps-uninstalled.pc cairo-pdf-uninstalled.pc \
 	cairo-svg-uninstalled.pc cairo-tee-uninstalled.pc \
 	cairo-xml-uninstalled.pc cairo-amigaos-uninstalled.pc \
-	cairo-gobject-uninstalled.pc
+	cairo-amigaos-font-uninstalled.pc cairo-gobject-uninstalled.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -876,6 +876,8 @@ cairo-tee-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/cairo-
 cairo-xml-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/cairo-features-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 cairo-amigaos-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/cairo-features-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+cairo-amigaos-font-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/cairo-features-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 cairo-gobject-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/cairo-features-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

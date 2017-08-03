@@ -610,6 +610,22 @@ if CAIRO_HAS_AMIGAOS_SURFACE
 enabled_cairo_pkgconf += cairo-amigaos.pc
 endif
 
+unsupported_cairo_headers += $(cairo_amigaos_font_headers)
+all_cairo_headers += $(cairo_amigaos_font_headers)
+all_cairo_private += $(cairo_amigaos_font_private)
+all_cairo_cxx_sources += $(cairo_amigaos_font_cxx_sources)
+all_cairo_sources += $(cairo_amigaos_font_sources)
+if CAIRO_HAS_AMIGAOS_FONT
+enabled_cairo_headers += $(cairo_amigaos_font_headers)
+enabled_cairo_private += $(cairo_amigaos_font_private)
+enabled_cairo_cxx_sources += $(cairo_amigaos_font_cxx_sources)
+enabled_cairo_sources += $(cairo_amigaos_font_sources)
+endif
+all_cairo_pkgconf += cairo-amigaos-font.pc
+if CAIRO_HAS_AMIGAOS_FONT
+enabled_cairo_pkgconf += cairo-amigaos-font.pc
+endif
+
 supported_cairo_headers += $(cairo_user_headers)
 all_cairo_headers += $(cairo_user_headers)
 all_cairo_private += $(cairo_user_private)

@@ -30,7 +30,7 @@
 
 #include "cairo.h"
 
-#if CAIRO_HAS_AMIGAOS_SURFACE
+#ifdef CAIRO_HAS_AMIGAOS_SURFACE
 
 # ifndef GRAPHICS_GFX_H
 #  include <graphics/gfx.h>
@@ -52,9 +52,22 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 
 CAIRO_END_DECLS
 
-#else /* CAIRO_HAS_AMIGAOS_SURFACE */
-# error Cairo was not compiled with support for the AmigaOS backend
 #endif /* CAIRO_HAS_AMIGAOS_SURFACE */
+
+#ifdef CAIRO_HAS_AMIGAOS_FONT
+
+CAIRO_BEGIN_DECLS
+
+cairo_public cairo_font_face_t *
+cairo_amigaos_font_face_create (const char *filename);
+
+CAIRO_END_DECLS
+
+#endif /* CAIRO_HAS_AMIGAOS_FONT */
+
+#if !defined(CAIRO_HAS_AMIGAOS_SURFACE) && !defined(CAIRO_HAS_AMIGAOS_FONT)
+# error Cairo was not compiled with support for the AmigaOS surface or font backends
+#endif
 
 #endif /* _CAIRO_AMIGAOS_H_ */
 

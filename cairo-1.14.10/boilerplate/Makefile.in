@@ -238,25 +238,29 @@ check_PROGRAMS = check-link$(EXEEXT)
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__append_137 = $(cairo_boilerplate_amigaos_private)
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__append_138 = $(cairo_boilerplate_amigaos_cxx_sources)
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__append_139 = $(cairo_boilerplate_amigaos_sources)
-@CAIRO_HAS_PTHREAD_TRUE@am__append_140 = $(cairo_boilerplate_pthread_private) $(cairo_boilerplate_pthread_headers)
-@CAIRO_HAS_PTHREAD_TRUE@am__append_141 = $(cairo_boilerplate_pthread_cxx_sources)
-@CAIRO_HAS_PTHREAD_TRUE@am__append_142 = $(cairo_boilerplate_pthread_sources)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_143 = $(cairo_boilerplate_gobject_headers)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_144 = $(cairo_boilerplate_gobject_private)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_145 = $(cairo_boilerplate_gobject_cxx_sources)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_146 = $(cairo_boilerplate_gobject_sources)
-@CAIRO_HAS_TRACE_TRUE@am__append_147 = $(cairo_boilerplate_trace_private) $(cairo_boilerplate_trace_headers)
-@CAIRO_HAS_TRACE_TRUE@am__append_148 = $(cairo_boilerplate_trace_cxx_sources)
-@CAIRO_HAS_TRACE_TRUE@am__append_149 = $(cairo_boilerplate_trace_sources)
-@CAIRO_HAS_INTERPRETER_TRUE@am__append_150 = $(cairo_boilerplate_interpreter_private) $(cairo_boilerplate_interpreter_headers)
-@CAIRO_HAS_INTERPRETER_TRUE@am__append_151 = $(cairo_boilerplate_interpreter_cxx_sources)
-@CAIRO_HAS_INTERPRETER_TRUE@am__append_152 = $(cairo_boilerplate_interpreter_sources)
-@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_153 = $(cairo_boilerplate_symbol_lookup_private) $(cairo_boilerplate_symbol_lookup_headers)
-@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_154 = $(cairo_boilerplate_symbol_lookup_cxx_sources)
-@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_155 = $(cairo_boilerplate_symbol_lookup_sources)
-@CAIRO_HAS_DL_TRUE@am__append_156 = -ldl
-@CAIRO_HAS_WIN32_SURFACE_TRUE@am__append_157 = -lwinspool
-@CROSS_COMPILING_FALSE@am__append_158 = check-link$(EXEEXT)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_140 = $(cairo_boilerplate_amigaos_font_headers)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_141 = $(cairo_boilerplate_amigaos_font_private)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_142 = $(cairo_boilerplate_amigaos_font_cxx_sources)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_143 = $(cairo_boilerplate_amigaos_font_sources)
+@CAIRO_HAS_PTHREAD_TRUE@am__append_144 = $(cairo_boilerplate_pthread_private) $(cairo_boilerplate_pthread_headers)
+@CAIRO_HAS_PTHREAD_TRUE@am__append_145 = $(cairo_boilerplate_pthread_cxx_sources)
+@CAIRO_HAS_PTHREAD_TRUE@am__append_146 = $(cairo_boilerplate_pthread_sources)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_147 = $(cairo_boilerplate_gobject_headers)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_148 = $(cairo_boilerplate_gobject_private)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_149 = $(cairo_boilerplate_gobject_cxx_sources)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_150 = $(cairo_boilerplate_gobject_sources)
+@CAIRO_HAS_TRACE_TRUE@am__append_151 = $(cairo_boilerplate_trace_private) $(cairo_boilerplate_trace_headers)
+@CAIRO_HAS_TRACE_TRUE@am__append_152 = $(cairo_boilerplate_trace_cxx_sources)
+@CAIRO_HAS_TRACE_TRUE@am__append_153 = $(cairo_boilerplate_trace_sources)
+@CAIRO_HAS_INTERPRETER_TRUE@am__append_154 = $(cairo_boilerplate_interpreter_private) $(cairo_boilerplate_interpreter_headers)
+@CAIRO_HAS_INTERPRETER_TRUE@am__append_155 = $(cairo_boilerplate_interpreter_cxx_sources)
+@CAIRO_HAS_INTERPRETER_TRUE@am__append_156 = $(cairo_boilerplate_interpreter_sources)
+@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_157 = $(cairo_boilerplate_symbol_lookup_private) $(cairo_boilerplate_symbol_lookup_headers)
+@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_158 = $(cairo_boilerplate_symbol_lookup_cxx_sources)
+@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_159 = $(cairo_boilerplate_symbol_lookup_sources)
+@CAIRO_HAS_DL_TRUE@am__append_160 = -ldl
+@CAIRO_HAS_WIN32_SURFACE_TRUE@am__append_161 = -lwinspool
+@CROSS_COMPILING_FALSE@am__append_162 = check-link$(EXEEXT)
 subdir = boilerplate
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/build/aclocal.cairo.m4 \
@@ -318,7 +322,8 @@ am__objects_3 = $(am__objects_1) $(am__objects_2) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
-	$(am__objects_1) $(am__objects_1) $(am__objects_1)
+	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
+	$(am__objects_1)
 am__objects_4 = $(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
@@ -332,7 +337,7 @@ am__objects_4 = $(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
-	$(am__objects_1) $(am__objects_1)
+	$(am__objects_1) $(am__objects_1) $(am__objects_1)
 am__objects_5 = cairo-boilerplate-getopt.lo \
 	cairo-boilerplate-system.lo cairo-boilerplate.lo
 am__objects_6 = cairo-boilerplate-xlib.lo
@@ -385,7 +390,7 @@ am__objects_42 = $(am__objects_5) $(am__objects_7) $(am__objects_1) \
 	$(am__objects_35) $(am__objects_37) $(am__objects_39) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_41) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
-	$(am__objects_1) $(am__objects_1)
+	$(am__objects_1) $(am__objects_1) $(am__objects_1)
 am_libcairoboilerplate_la_OBJECTS = $(am__objects_3) $(am__objects_4) \
 	$(am__objects_42) cairo-boilerplate-constructors.lo
 libcairoboilerplate_la_OBJECTS = $(am_libcairoboilerplate_la_OBJECTS)
@@ -415,7 +420,7 @@ am__objects_47 = $(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
 	$(am__objects_1) $(am__objects_1) $(am__objects_1) \
-	$(am__objects_1)
+	$(am__objects_1) $(am__objects_1)
 am_libcairoboilerplate_cxx_la_OBJECTS = $(am__objects_47)
 libcairoboilerplate_cxx_la_OBJECTS =  \
 	$(am_libcairoboilerplate_cxx_la_OBJECTS)
@@ -938,7 +943,7 @@ EXTRA_DIST = Makefile.win32 Makefile.win32.features $(BUILT_SOURCES) \
 	make-cairo-boilerplate-constructors.sh
 EXTRA_LTLIBRARIES = libcairoboilerplate.la $(cxx_boilerplate_lib)
 MAINTAINERCLEANFILES = Makefile.in
-TESTS = $(am__append_158)
+TESTS = $(am__append_162)
 cairo_boilerplate_headers = \
 	cairo-boilerplate-getopt.h \
 	cairo-boilerplate-scaled-font.h \
@@ -1018,7 +1023,8 @@ unsupported_cairo_boilerplate_headers =  \
 	$(cairo_boilerplate_vg_headers) \
 	$(cairo_boilerplate_tee_headers) \
 	$(cairo_boilerplate_xml_headers) \
-	$(cairo_boilerplate_amigaos_headers)
+	$(cairo_boilerplate_amigaos_headers) \
+	$(cairo_boilerplate_amigaos_font_headers)
 all_cairo_boilerplate_headers = $(cairo_boilerplate_headers) \
 	$(cairo_boilerplate_xlib_headers) \
 	$(cairo_boilerplate_xlib_xrender_headers) \
@@ -1058,6 +1064,7 @@ all_cairo_boilerplate_headers = $(cairo_boilerplate_headers) \
 	$(cairo_boilerplate_tee_headers) \
 	$(cairo_boilerplate_xml_headers) \
 	$(cairo_boilerplate_amigaos_headers) \
+	$(cairo_boilerplate_amigaos_font_headers) \
 	$(cairo_boilerplate_user_headers) \
 	$(cairo_boilerplate_gobject_headers)
 all_cairo_boilerplate_private = $(cairo_boilerplate_private) \
@@ -1101,6 +1108,7 @@ all_cairo_boilerplate_private = $(cairo_boilerplate_private) \
 	$(cairo_boilerplate_tee_private) \
 	$(cairo_boilerplate_xml_private) \
 	$(cairo_boilerplate_amigaos_private) \
+	$(cairo_boilerplate_amigaos_font_private) \
 	$(cairo_boilerplate_user_private) \
 	$(cairo_boilerplate_pthread_private) \
 	$(cairo_boilerplate_pthread_headers) \
@@ -1151,6 +1159,7 @@ all_cairo_boilerplate_cxx_sources = $(cairo_boilerplate_cxx_sources) \
 	$(cairo_boilerplate_tee_cxx_sources) \
 	$(cairo_boilerplate_xml_cxx_sources) \
 	$(cairo_boilerplate_amigaos_cxx_sources) \
+	$(cairo_boilerplate_amigaos_font_cxx_sources) \
 	$(cairo_boilerplate_user_cxx_sources) \
 	$(cairo_boilerplate_pthread_cxx_sources) \
 	$(cairo_boilerplate_gobject_cxx_sources) \
@@ -1197,6 +1206,7 @@ all_cairo_boilerplate_sources = $(cairo_boilerplate_sources) \
 	$(cairo_boilerplate_tee_sources) \
 	$(cairo_boilerplate_xml_sources) \
 	$(cairo_boilerplate_amigaos_sources) \
+	$(cairo_boilerplate_amigaos_font_sources) \
 	$(cairo_boilerplate_user_sources) \
 	$(cairo_boilerplate_pthread_sources) \
 	$(cairo_boilerplate_gobject_sources) \
@@ -1218,8 +1228,8 @@ enabled_cairo_boilerplate_headers = $(cairo_boilerplate_headers) \
 	$(cairo_boilerplate_mime_headers) \
 	$(cairo_boilerplate_recording_headers) \
 	$(cairo_boilerplate_observer_headers) $(am__append_128) \
-	$(am__append_132) $(am__append_136) \
-	$(cairo_boilerplate_user_headers) $(am__append_143)
+	$(am__append_132) $(am__append_136) $(am__append_140) \
+	$(cairo_boilerplate_user_headers) $(am__append_147)
 enabled_cairo_boilerplate_private = $(cairo_boilerplate_private) \
 	$(am__append_2) $(am__append_6) $(am__append_10) \
 	$(am__append_14) $(am__append_18) $(am__append_22) \
@@ -1236,10 +1246,10 @@ enabled_cairo_boilerplate_private = $(cairo_boilerplate_private) \
 	$(cairo_boilerplate_mime_private) \
 	$(cairo_boilerplate_recording_private) \
 	$(cairo_boilerplate_observer_private) $(am__append_129) \
-	$(am__append_133) $(am__append_137) \
-	$(cairo_boilerplate_user_private) $(am__append_140) \
-	$(am__append_144) $(am__append_147) $(am__append_150) \
-	$(am__append_153)
+	$(am__append_133) $(am__append_137) $(am__append_141) \
+	$(cairo_boilerplate_user_private) $(am__append_144) \
+	$(am__append_148) $(am__append_151) $(am__append_154) \
+	$(am__append_157)
 enabled_cairo_boilerplate_cxx_sources =  \
 	$(cairo_boilerplate_cxx_sources) $(am__append_3) \
 	$(am__append_7) $(am__append_11) $(am__append_15) \
@@ -1256,10 +1266,10 @@ enabled_cairo_boilerplate_cxx_sources =  \
 	$(cairo_boilerplate_mime_cxx_sources) \
 	$(cairo_boilerplate_recording_cxx_sources) \
 	$(cairo_boilerplate_observer_cxx_sources) $(am__append_130) \
-	$(am__append_134) $(am__append_138) \
-	$(cairo_boilerplate_user_cxx_sources) $(am__append_141) \
-	$(am__append_145) $(am__append_148) $(am__append_151) \
-	$(am__append_154)
+	$(am__append_134) $(am__append_138) $(am__append_142) \
+	$(cairo_boilerplate_user_cxx_sources) $(am__append_145) \
+	$(am__append_149) $(am__append_152) $(am__append_155) \
+	$(am__append_158)
 enabled_cairo_boilerplate_sources = $(cairo_boilerplate_sources) \
 	$(am__append_4) $(am__append_8) $(am__append_12) \
 	$(am__append_16) $(am__append_20) $(am__append_24) \
@@ -1276,10 +1286,10 @@ enabled_cairo_boilerplate_sources = $(cairo_boilerplate_sources) \
 	$(cairo_boilerplate_mime_sources) \
 	$(cairo_boilerplate_recording_sources) \
 	$(cairo_boilerplate_observer_sources) $(am__append_131) \
-	$(am__append_135) $(am__append_139) \
-	$(cairo_boilerplate_user_sources) $(am__append_142) \
-	$(am__append_146) $(am__append_149) $(am__append_152) \
-	$(am__append_155)
+	$(am__append_135) $(am__append_139) $(am__append_143) \
+	$(cairo_boilerplate_user_sources) $(am__append_146) \
+	$(am__append_150) $(am__append_153) $(am__append_156) \
+	$(am__append_159)
 #MAINTAINERCLEANFILES += $(srcdir)/Makefile.win32.features
 AM_CPPFLAGS = \
 	-I$(srcdir) \
@@ -1304,7 +1314,7 @@ libcairoboilerplate_cxx_la_SOURCES = \
 
 libcairoboilerplate_la_LIBADD = $(top_builddir)/src/libcairo.la \
 	$(cxx_boilerplate_lib) $(CAIRO_LIBS) $(CAIROBOILERPLATE_LIBS) \
-	$(NULL) $(am__append_156) $(am__append_157)
+	$(NULL) $(am__append_160) $(am__append_161)
 libcairoboilerplate_cxx_la_LIBADD = $(top_builddir)/src/libcairo.la \
 	$(CAIRO_LIBS) \
 	$(CAIROBOILERPLATE_LIBS) \

@@ -335,24 +335,29 @@ check_PROGRAMS =
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__append_171 = $(cairo_amigaos_cxx_sources)
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__append_172 = $(cairo_amigaos_sources)
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__append_173 = cairo-amigaos.pc
-@CAIRO_HAS_PTHREAD_TRUE@am__append_174 = $(cairo_pthread_private) $(cairo_pthread_headers)
-@CAIRO_HAS_PTHREAD_TRUE@am__append_175 = $(cairo_pthread_cxx_sources)
-@CAIRO_HAS_PTHREAD_TRUE@am__append_176 = $(cairo_pthread_sources)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_177 = $(cairo_gobject_headers)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_178 = $(cairo_gobject_private)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_179 = $(cairo_gobject_cxx_sources)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_180 = $(cairo_gobject_sources)
-@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_181 = cairo-gobject.pc
-@CAIRO_HAS_TRACE_TRUE@am__append_182 = $(cairo_trace_private) $(cairo_trace_headers)
-@CAIRO_HAS_TRACE_TRUE@am__append_183 = $(cairo_trace_cxx_sources)
-@CAIRO_HAS_TRACE_TRUE@am__append_184 = $(cairo_trace_sources)
-@CAIRO_HAS_INTERPRETER_TRUE@am__append_185 = $(cairo_interpreter_private) $(cairo_interpreter_headers)
-@CAIRO_HAS_INTERPRETER_TRUE@am__append_186 = $(cairo_interpreter_cxx_sources)
-@CAIRO_HAS_INTERPRETER_TRUE@am__append_187 = $(cairo_interpreter_sources)
-@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_188 = $(cairo_symbol_lookup_private) $(cairo_symbol_lookup_headers)
-@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_189 = $(cairo_symbol_lookup_cxx_sources)
-@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_190 = $(cairo_symbol_lookup_sources)
-@ENABLE_GTK_DOC_TRUE@am__append_191 = check-doc-coverage.sh
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_174 = $(cairo_amigaos_font_headers)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_175 = $(cairo_amigaos_font_private)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_176 = $(cairo_amigaos_font_cxx_sources)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_177 = $(cairo_amigaos_font_sources)
+@CAIRO_HAS_AMIGAOS_FONT_TRUE@am__append_178 = cairo-amigaos-font.pc
+@CAIRO_HAS_PTHREAD_TRUE@am__append_179 = $(cairo_pthread_private) $(cairo_pthread_headers)
+@CAIRO_HAS_PTHREAD_TRUE@am__append_180 = $(cairo_pthread_cxx_sources)
+@CAIRO_HAS_PTHREAD_TRUE@am__append_181 = $(cairo_pthread_sources)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_182 = $(cairo_gobject_headers)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_183 = $(cairo_gobject_private)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_184 = $(cairo_gobject_cxx_sources)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_185 = $(cairo_gobject_sources)
+@CAIRO_HAS_GOBJECT_FUNCTIONS_TRUE@am__append_186 = cairo-gobject.pc
+@CAIRO_HAS_TRACE_TRUE@am__append_187 = $(cairo_trace_private) $(cairo_trace_headers)
+@CAIRO_HAS_TRACE_TRUE@am__append_188 = $(cairo_trace_cxx_sources)
+@CAIRO_HAS_TRACE_TRUE@am__append_189 = $(cairo_trace_sources)
+@CAIRO_HAS_INTERPRETER_TRUE@am__append_190 = $(cairo_interpreter_private) $(cairo_interpreter_headers)
+@CAIRO_HAS_INTERPRETER_TRUE@am__append_191 = $(cairo_interpreter_cxx_sources)
+@CAIRO_HAS_INTERPRETER_TRUE@am__append_192 = $(cairo_interpreter_sources)
+@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_193 = $(cairo_symbol_lookup_private) $(cairo_symbol_lookup_headers)
+@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_194 = $(cairo_symbol_lookup_cxx_sources)
+@CAIRO_HAS_SYMBOL_LOOKUP_TRUE@am__append_195 = $(cairo_symbol_lookup_sources)
+@ENABLE_GTK_DOC_TRUE@am__append_196 = check-doc-coverage.sh
 subdir = doc/public
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/build/aclocal.cairo.m4 \
@@ -838,7 +843,7 @@ EXTRA_DIST = $(content_files) $(HTML_IMAGES) $(DOC_MAIN_SGML_FILE) \
 	check-doc-coverage.sh check-doc-syntax.sh
 EXTRA_LTLIBRARIES = 
 MAINTAINERCLEANFILES = Makefile.in
-TESTS = $(am__append_191) check-doc-syntax.sh
+TESTS = $(am__append_196) check-doc-syntax.sh
 cairo_headers = cairo.h cairo-deprecated.h
 cairo_private = cairoint.h cairo-analysis-surface-private.h \
 	cairo-arc-private.h cairo-array-private.h \
@@ -1143,6 +1148,7 @@ cairo_amigaos_private = amigaos/cairo-amigaos-private.h
 cairo_amigaos_sources = amigaos/cairo-amigaos-compositor.c \
                         amigaos/cairo-amigaos-surface.c
 
+cairo_amigaos_font_sources = amigaos/cairo-amigaos-font.c
 supported_cairo_headers = $(cairo_headers) $(cairo_xlib_headers) \
 	$(cairo_xlib_xrender_headers) $(cairo_xcb_headers) \
 	$(cairo_xcb_shm_headers) $(cairo_quartz_headers) \
@@ -1163,7 +1169,7 @@ unsupported_cairo_headers = $(cairo_xlib_xcb_headers) \
 	$(cairo_glesv2_headers) $(cairo_cogl_headers) \
 	$(cairo_directfb_headers) $(cairo_vg_headers) \
 	$(cairo_tee_headers) $(cairo_xml_headers) \
-	$(cairo_amigaos_headers)
+	$(cairo_amigaos_headers) $(cairo_amigaos_font_headers)
 all_cairo_headers = $(cairo_headers) $(cairo_xlib_headers) \
 	$(cairo_xlib_xrender_headers) $(cairo_xcb_headers) \
 	$(cairo_xlib_xcb_headers) $(cairo_xcb_shm_headers) \
@@ -1182,8 +1188,8 @@ all_cairo_headers = $(cairo_headers) $(cairo_xlib_headers) \
 	$(cairo_image_headers) $(cairo_mime_headers) \
 	$(cairo_recording_headers) $(cairo_observer_headers) \
 	$(cairo_tee_headers) $(cairo_xml_headers) \
-	$(cairo_amigaos_headers) $(cairo_user_headers) \
-	$(cairo_gobject_headers)
+	$(cairo_amigaos_headers) $(cairo_amigaos_font_headers) \
+	$(cairo_user_headers) $(cairo_gobject_headers)
 all_cairo_private = $(cairo_private) $(cairo_xlib_private) \
 	$(cairo_xlib_xrender_private) $(cairo_xcb_private) \
 	$(cairo_xlib_xcb_private) $(cairo_xcb_shm_private) \
@@ -1203,12 +1209,12 @@ all_cairo_private = $(cairo_private) $(cairo_xlib_private) \
 	$(cairo_image_private) $(cairo_mime_private) \
 	$(cairo_recording_private) $(cairo_observer_private) \
 	$(cairo_tee_private) $(cairo_xml_private) \
-	$(cairo_amigaos_private) $(cairo_user_private) \
-	$(cairo_pthread_private) $(cairo_pthread_headers) \
-	$(cairo_gobject_private) $(cairo_trace_private) \
-	$(cairo_trace_headers) $(cairo_interpreter_private) \
-	$(cairo_interpreter_headers) $(cairo_symbol_lookup_private) \
-	$(cairo_symbol_lookup_headers)
+	$(cairo_amigaos_private) $(cairo_amigaos_font_private) \
+	$(cairo_user_private) $(cairo_pthread_private) \
+	$(cairo_pthread_headers) $(cairo_gobject_private) \
+	$(cairo_trace_private) $(cairo_trace_headers) \
+	$(cairo_interpreter_private) $(cairo_interpreter_headers) \
+	$(cairo_symbol_lookup_private) $(cairo_symbol_lookup_headers)
 all_cairo_cxx_sources = $(cairo_cxx_sources) $(cairo_xlib_cxx_sources) \
 	$(cairo_xlib_xrender_cxx_sources) $(cairo_xcb_cxx_sources) \
 	$(cairo_xlib_xcb_cxx_sources) $(cairo_xcb_shm_cxx_sources) \
@@ -1229,9 +1235,10 @@ all_cairo_cxx_sources = $(cairo_cxx_sources) $(cairo_xlib_cxx_sources) \
 	$(cairo_image_cxx_sources) $(cairo_mime_cxx_sources) \
 	$(cairo_recording_cxx_sources) $(cairo_observer_cxx_sources) \
 	$(cairo_tee_cxx_sources) $(cairo_xml_cxx_sources) \
-	$(cairo_amigaos_cxx_sources) $(cairo_user_cxx_sources) \
-	$(cairo_pthread_cxx_sources) $(cairo_gobject_cxx_sources) \
-	$(cairo_trace_cxx_sources) $(cairo_interpreter_cxx_sources) \
+	$(cairo_amigaos_cxx_sources) $(cairo_amigaos_font_cxx_sources) \
+	$(cairo_user_cxx_sources) $(cairo_pthread_cxx_sources) \
+	$(cairo_gobject_cxx_sources) $(cairo_trace_cxx_sources) \
+	$(cairo_interpreter_cxx_sources) \
 	$(cairo_symbol_lookup_cxx_sources)
 all_cairo_sources = $(cairo_sources) $(cairo_xlib_sources) \
 	$(cairo_xlib_xrender_sources) $(cairo_xcb_sources) \
@@ -1252,9 +1259,10 @@ all_cairo_sources = $(cairo_sources) $(cairo_xlib_sources) \
 	$(cairo_mime_sources) $(cairo_recording_sources) \
 	$(cairo_observer_sources) $(cairo_tee_sources) \
 	$(cairo_xml_sources) $(cairo_amigaos_sources) \
-	$(cairo_user_sources) $(cairo_pthread_sources) \
-	$(cairo_gobject_sources) $(cairo_trace_sources) \
-	$(cairo_interpreter_sources) $(cairo_symbol_lookup_sources)
+	$(cairo_amigaos_font_sources) $(cairo_user_sources) \
+	$(cairo_pthread_sources) $(cairo_gobject_sources) \
+	$(cairo_trace_sources) $(cairo_interpreter_sources) \
+	$(cairo_symbol_lookup_sources)
 enabled_cairo_headers = $(cairo_headers) $(am__append_1) \
 	$(am__append_6) $(am__append_11) $(am__append_16) \
 	$(am__append_21) $(am__append_26) $(am__append_31) \
@@ -1269,7 +1277,7 @@ enabled_cairo_headers = $(cairo_headers) $(am__append_1) \
 	$(cairo_image_headers) $(cairo_mime_headers) \
 	$(cairo_recording_headers) $(cairo_observer_headers) \
 	$(am__append_159) $(am__append_164) $(am__append_169) \
-	$(cairo_user_headers) $(am__append_177)
+	$(am__append_174) $(cairo_user_headers) $(am__append_182)
 enabled_cairo_private = $(cairo_private) $(am__append_2) \
 	$(am__append_7) $(am__append_12) $(am__append_17) \
 	$(am__append_22) $(am__append_27) $(am__append_32) \
@@ -1284,8 +1292,9 @@ enabled_cairo_private = $(cairo_private) $(am__append_2) \
 	$(am__append_156) $(cairo_image_private) $(cairo_mime_private) \
 	$(cairo_recording_private) $(cairo_observer_private) \
 	$(am__append_160) $(am__append_165) $(am__append_170) \
-	$(cairo_user_private) $(am__append_174) $(am__append_178) \
-	$(am__append_182) $(am__append_185) $(am__append_188)
+	$(am__append_175) $(cairo_user_private) $(am__append_179) \
+	$(am__append_183) $(am__append_187) $(am__append_190) \
+	$(am__append_193)
 enabled_cairo_cxx_sources = $(cairo_cxx_sources) $(am__append_3) \
 	$(am__append_8) $(am__append_13) $(am__append_18) \
 	$(am__append_23) $(am__append_28) $(am__append_33) \
@@ -1300,9 +1309,9 @@ enabled_cairo_cxx_sources = $(cairo_cxx_sources) $(am__append_3) \
 	$(am__append_157) $(cairo_image_cxx_sources) \
 	$(cairo_mime_cxx_sources) $(cairo_recording_cxx_sources) \
 	$(cairo_observer_cxx_sources) $(am__append_161) \
-	$(am__append_166) $(am__append_171) $(cairo_user_cxx_sources) \
-	$(am__append_175) $(am__append_179) $(am__append_183) \
-	$(am__append_186) $(am__append_189)
+	$(am__append_166) $(am__append_171) $(am__append_176) \
+	$(cairo_user_cxx_sources) $(am__append_180) $(am__append_184) \
+	$(am__append_188) $(am__append_191) $(am__append_194)
 enabled_cairo_sources = $(cairo_sources) $(am__append_4) \
 	$(am__append_9) $(am__append_14) $(am__append_19) \
 	$(am__append_24) $(am__append_29) $(am__append_34) \
@@ -1317,8 +1326,9 @@ enabled_cairo_sources = $(cairo_sources) $(am__append_4) \
 	$(am__append_158) $(cairo_image_sources) $(cairo_mime_sources) \
 	$(cairo_recording_sources) $(cairo_observer_sources) \
 	$(am__append_162) $(am__append_167) $(am__append_172) \
-	$(cairo_user_sources) $(am__append_176) $(am__append_180) \
-	$(am__append_184) $(am__append_187) $(am__append_190)
+	$(am__append_177) $(cairo_user_sources) $(am__append_181) \
+	$(am__append_185) $(am__append_189) $(am__append_192) \
+	$(am__append_195)
 all_cairo_pkgconf = cairo.pc cairo-xlib.pc cairo-xlib-xrender.pc \
 	cairo-xcb.pc cairo-xlib-xcb.pc cairo-xcb-shm.pc cairo-qt.pc \
 	cairo-quartz.pc cairo-quartz-font.pc cairo-quartz-image.pc \
@@ -1328,7 +1338,7 @@ all_cairo_pkgconf = cairo.pc cairo-xlib.pc cairo-xlib-xrender.pc \
 	cairo-vg.pc cairo-egl.pc cairo-glx.pc cairo-wgl.pc \
 	cairo-script.pc cairo-ft.pc cairo-fc.pc cairo-ps.pc \
 	cairo-pdf.pc cairo-svg.pc cairo-tee.pc cairo-xml.pc \
-	cairo-amigaos.pc cairo-gobject.pc
+	cairo-amigaos.pc cairo-amigaos-font.pc cairo-gobject.pc
 enabled_cairo_pkgconf = cairo.pc $(am__append_5) $(am__append_10) \
 	$(am__append_15) $(am__append_20) $(am__append_25) \
 	$(am__append_30) $(am__append_35) $(am__append_40) \
@@ -1340,7 +1350,8 @@ enabled_cairo_pkgconf = cairo.pc $(am__append_5) $(am__append_10) \
 	$(am__append_120) $(am__append_125) $(am__append_130) \
 	$(am__append_135) $(am__append_140) $(am__append_145) \
 	$(am__append_150) $(am__append_155) $(am__append_163) \
-	$(am__append_168) $(am__append_173) $(am__append_181)
+	$(am__append_168) $(am__append_173) $(am__append_178) \
+	$(am__append_186)
 
 # The name of the module.
 DOC_MODULE = cairo

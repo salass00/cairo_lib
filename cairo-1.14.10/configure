@@ -675,6 +675,8 @@ HAVE_REAL_PTHREAD_FALSE
 HAVE_REAL_PTHREAD_TRUE
 CAIRO_HAS_PTHREAD_FALSE
 CAIRO_HAS_PTHREAD_TRUE
+CAIRO_HAS_AMIGAOS_FONT_FALSE
+CAIRO_HAS_AMIGAOS_FONT_TRUE
 CAIRO_HAS_AMIGAOS_SURFACE_FALSE
 CAIRO_HAS_AMIGAOS_SURFACE_TRUE
 CAIRO_HAS_XML_SURFACE_FALSE
@@ -1030,6 +1032,7 @@ enable_test_surfaces
 enable_tee
 enable_xml
 enable_amigaos
+enable_amigaos_font
 enable_pthread
 enable_gobject
 enable_full_testing
@@ -1848,7 +1851,10 @@ Optional Features:
                           Enable cairo's xml surface backend feature
                           [default=no]
   --enable-amigaos=[no/auto/yes]
-                          Enable cairo's amigaos surface backend feature
+                          Enable cairo's AmigaOS surface backend feature
+                          [default=no]
+  --enable-amigaos-font=[no/auto/yes]
+                          Enable cairo's AmigaOS font backend feature
                           [default=no]
   --enable-pthread=[no/auto/yes]
                           Enable cairo's pthread feature [default=auto]
@@ -33561,8 +33567,8 @@ fi
     		use_amigaos="no (disabled, use --enable-amigaos to enable)"
 	 ;; #(
   	yes|auto) :
-    		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cairo's amigaos surface backend feature" >&5
-$as_echo_n "checking for cairo's amigaos surface backend feature... " >&6; }
+    		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cairo's AmigaOS surface backend feature" >&5
+$as_echo_n "checking for cairo's AmigaOS surface backend feature... " >&6; }
 		echo
 
 		use_amigaos=yes
@@ -33577,13 +33583,13 @@ amigaos_NONPKGCONFIG_EXTRA_LIBS="$ac_env_amigaos_NONPKGCONFIG_EXTRA_LIBS_value"
 
 
 
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether cairo's amigaos surface backend feature could be enabled" >&5
-$as_echo_n "checking whether cairo's amigaos surface backend feature could be enabled... " >&6; }
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether cairo's AmigaOS surface backend feature could be enabled" >&5
+$as_echo_n "checking whether cairo's AmigaOS surface backend feature could be enabled... " >&6; }
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $use_amigaos" >&5
 $as_echo "$use_amigaos" >&6; }
 
 		if test "x$enable_amigaos" = "xyes" -a "x$use_amigaos" != xyes; then :
-  			as_fn_error $? " amigaos surface backend feature could not be enabled" "$LINENO" 5
+  			as_fn_error $? " AmigaOS surface backend feature could not be enabled" "$LINENO" 5
 
 fi	 ;; #(
   *) :
@@ -33779,10 +33785,254 @@ fi
   :
 			        	CAIRO_WARNING_MESSAGE="${CAIRO_WARNING_MESSAGE}
 
-"'--- The amigaos surface backend feature is still under active development and
+"'--- The AmigaOS surface backend feature is still under active development and
 --- is included in this release only as a preview. It does NOT fully work yet
---- and incompatible changes may yet be made to amigaos surface backend
+--- and incompatible changes may yet be made to AmigaOS surface backend
 --- specific API.'
+
+
+
+fi
+
+
+
+
+
+
+																# Check whether --enable-amigaos-font was given.
+if test "${enable_amigaos_font+set}" = set; then :
+  enableval=$enable_amigaos_font; enable_amigaos_font=$enableval
+else
+  enable_amigaos_font=no
+fi
+
+			case $enable_amigaos_font in #(
+  no) :
+    		use_amigaos_font="no (disabled, use --enable-amigaos-font to enable)"
+	 ;; #(
+  	yes|auto) :
+    		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cairo's AmigaOS font backend feature" >&5
+$as_echo_n "checking for cairo's AmigaOS font backend feature... " >&6; }
+		echo
+
+		use_amigaos_font=yes
+			amigaos_font_BASE="cairo"
+amigaos_font_REQUIRES="$ac_env_amigaos_font_REQUIRES_value"
+amigaos_font_CFLAGS="$ac_env_amigaos_font_CFLAGS_value"
+amigaos_font_NONPKGCONFIG_CFLAGS="$ac_env_amigaos_font_NONPKGCONFIG_CFLAGS_value"
+amigaos_font_LIBS="$ac_env_amigaos_font_LIBS_value"
+amigaos_font_NONPKGCONFIG_LIBS="$ac_env_amigaos_font_NONPKGCONFIG_LIBS_value"
+amigaos_font_NONPKGCONFIG_EXTRA_LIBS="$ac_env_amigaos_font_NONPKGCONFIG_EXTRA_LIBS_value"
+
+
+
+
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether cairo's AmigaOS font backend feature could be enabled" >&5
+$as_echo_n "checking whether cairo's AmigaOS font backend feature could be enabled... " >&6; }
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $use_amigaos_font" >&5
+$as_echo "$use_amigaos_font" >&6; }
+
+		if test "x$enable_amigaos_font" = "xyes" -a "x$use_amigaos_font" != xyes; then :
+  			as_fn_error $? " AmigaOS font backend feature could not be enabled" "$LINENO" 5
+
+fi	 ;; #(
+  *) :
+    			as_fn_error $? "invalid argument passed to --enable-amigaos-font: \`$use_amigaos_font', should be one of [no/auto/yes]" "$LINENO" 5
+	 ;;
+esac
+	if test "x$use_amigaos_font" = "xyes"; then :
+  								        	CAIRO_REQUIRES="$amigaos_font_REQUIRES"" ${CAIRO_REQUIRES}"
+
+							        	CAIRO_CFLAGS="$amigaos_font_CFLAGS"" ${CAIRO_CFLAGS}"
+
+							        	CAIRO_NONPKGCONFIG_CFLAGS="$amigaos_font_NONPKGCONFIG_CFLAGS"" ${CAIRO_NONPKGCONFIG_CFLAGS}"
+
+							        	CAIRO_LIBS="$amigaos_font_LIBS"" ${CAIRO_LIBS}"
+
+							        	CAIRO_NONPKGCONFIG_LIBS="$amigaos_font_NONPKGCONFIG_LIBS"" ${CAIRO_NONPKGCONFIG_LIBS}"
+
+
+else
+  					unset amigaos_font_BASE
+unset amigaos_font_REQUIRES
+unset amigaos_font_CFLAGS
+unset amigaos_font_NONPKGCONFIG_CFLAGS
+unset amigaos_font_LIBS
+unset amigaos_font_NONPKGCONFIG_LIBS
+unset amigaos_font_NONPKGCONFIG_EXTRA_LIBS
+
+
+fi
+
+							 if test "x$use_amigaos_font" = xyes; then
+  CAIRO_HAS_AMIGAOS_FONT_TRUE=
+  CAIRO_HAS_AMIGAOS_FONT_FALSE='#'
+else
+  CAIRO_HAS_AMIGAOS_FONT_TRUE='#'
+  CAIRO_HAS_AMIGAOS_FONT_FALSE=
+fi
+
+
+										cr_make_tmp='CAIRO_HAS_AMIGAOS_FONT=0'
+												        	CAIRO_MAKEFILE___WIN32="${CAIRO_MAKEFILE___WIN32}
+""$cr_make_tmp"
+
+
+										cr_make_tmp=''
+									        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+""$cr_make_tmp"
+										cr_make_tmp=''
+									        	CAIRO_MAKEFILE_cairo_boilerplate_AMAKE="${CAIRO_MAKEFILE_cairo_boilerplate_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_boilerplate_WIN32="${CAIRO_MAKEFILE_cairo_boilerplate_WIN32}
+""$cr_make_tmp"
+
+
+
+										cr_make_tmp='unsupported_cairo_headers += $(cairo_amigaos_font_headers)'
+									        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+""$cr_make_tmp"
+										cr_make_tmp='unsupported_cairo_boilerplate_headers += $(cairo_boilerplate_amigaos_font_headers)'
+									        	CAIRO_MAKEFILE_cairo_boilerplate_AMAKE="${CAIRO_MAKEFILE_cairo_boilerplate_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_boilerplate_WIN32="${CAIRO_MAKEFILE_cairo_boilerplate_WIN32}
+""$cr_make_tmp"
+
+
+										cr_make_tmp='all_cairo_headers += $(cairo_amigaos_font_headers)
+all_cairo_private += $(cairo_amigaos_font_private)
+all_cairo_cxx_sources += $(cairo_amigaos_font_cxx_sources)
+all_cairo_sources += $(cairo_amigaos_font_sources)'
+									        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+""$cr_make_tmp"
+										cr_make_tmp='all_cairo_boilerplate_headers += $(cairo_boilerplate_amigaos_font_headers)
+all_cairo_boilerplate_private += $(cairo_boilerplate_amigaos_font_private)
+all_cairo_boilerplate_cxx_sources += $(cairo_boilerplate_amigaos_font_cxx_sources)
+all_cairo_boilerplate_sources += $(cairo_boilerplate_amigaos_font_sources)'
+									        	CAIRO_MAKEFILE_cairo_boilerplate_AMAKE="${CAIRO_MAKEFILE_cairo_boilerplate_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_boilerplate_WIN32="${CAIRO_MAKEFILE_cairo_boilerplate_WIN32}
+""$cr_make_tmp"
+
+
+										cr_make_tmp='enabled_cairo_headers += $(cairo_amigaos_font_headers)
+enabled_cairo_private += $(cairo_amigaos_font_private)
+enabled_cairo_cxx_sources += $(cairo_amigaos_font_cxx_sources)
+enabled_cairo_sources += $(cairo_amigaos_font_sources)'
+								        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+"'if CAIRO_HAS_AMIGAOS_FONT'
+			        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+"'endif'
+
+											        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+"'ifeq ($(CAIRO_HAS_AMIGAOS_FONT),1)'
+			        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+"'endif'
+									cr_make_tmp='enabled_cairo_boilerplate_headers += $(cairo_boilerplate_amigaos_font_headers)
+enabled_cairo_boilerplate_private += $(cairo_boilerplate_amigaos_font_private)
+enabled_cairo_boilerplate_cxx_sources += $(cairo_boilerplate_amigaos_font_cxx_sources)
+enabled_cairo_boilerplate_sources += $(cairo_boilerplate_amigaos_font_sources)'
+								        	CAIRO_MAKEFILE_cairo_boilerplate_AMAKE="${CAIRO_MAKEFILE_cairo_boilerplate_AMAKE}
+"'if CAIRO_HAS_AMIGAOS_FONT'
+			        	CAIRO_MAKEFILE_cairo_boilerplate_AMAKE="${CAIRO_MAKEFILE_cairo_boilerplate_AMAKE}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_cairo_boilerplate_AMAKE="${CAIRO_MAKEFILE_cairo_boilerplate_AMAKE}
+"'endif'
+
+											        	CAIRO_MAKEFILE_cairo_boilerplate_WIN32="${CAIRO_MAKEFILE_cairo_boilerplate_WIN32}
+"'ifeq ($(CAIRO_HAS_AMIGAOS_FONT),1)'
+			        	CAIRO_MAKEFILE_cairo_boilerplate_WIN32="${CAIRO_MAKEFILE_cairo_boilerplate_WIN32}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_cairo_boilerplate_WIN32="${CAIRO_MAKEFILE_cairo_boilerplate_WIN32}
+"'endif'
+
+
+
+
+					if test "x$use_amigaos_font" = xyes; then :
+  :
+		ac_config_files="$ac_config_files src/cairo-amigaos-font.pc:src/cairo-features.pc.in"
+
+
+fi
+					if test "x$use_amigaos_font" = xyes; then :
+  :
+		ac_config_files="$ac_config_files cairo-amigaos-font-uninstalled.pc:src/cairo-features-uninstalled.pc.in"
+
+
+fi
+										cr_make_tmp='all_cairo_pkgconf += cairo-amigaos-font.pc'
+									        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+""$cr_make_tmp"
+
+												        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+""$cr_make_tmp"
+
+
+										cr_make_tmp='enabled_cairo_pkgconf += cairo-amigaos-font.pc'
+								        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+"'if CAIRO_HAS_AMIGAOS_FONT'
+			        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_cairo_AMAKE="${CAIRO_MAKEFILE_cairo_AMAKE}
+"'endif'
+
+											        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+"'ifeq ($(CAIRO_HAS_AMIGAOS_FONT),1)'
+			        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_cairo_WIN32="${CAIRO_MAKEFILE_cairo_WIN32}
+"'endif'
+
+
+					if test "x$use_amigaos_font" = xyes; then :
+  :
+			        	CAIRO_FEATURES="${CAIRO_FEATURES} "'CAIRO_HAS_AMIGAOS_FONT'
+
+
+fi
+
+					if test "x$use_amigaos_font" != xyes; then :
+  :
+			        	CAIRO_NO_FEATURES="${CAIRO_NO_FEATURES} "'CAIRO_HAS_AMIGAOS_FONT'
+
+
+
+fi
+
+										cr_make_tmp='	@echo "#define CAIRO_HAS_AMIGAOS_FONT 1" >> $(top_srcdir)/src/cairo-features.h'
+											        	CAIRO_MAKEFILE_win32_features_h_WIN32="${CAIRO_MAKEFILE_win32_features_h_WIN32}
+"'ifeq ($(CAIRO_HAS_AMIGAOS_FONT),1)'
+			        	CAIRO_MAKEFILE_win32_features_h_WIN32="${CAIRO_MAKEFILE_win32_features_h_WIN32}
+""$cr_make_tmp"
+			        	CAIRO_MAKEFILE_win32_features_h_WIN32="${CAIRO_MAKEFILE_win32_features_h_WIN32}
+"'endif'
+
+
+					if test "x$use_amigaos_font" = xyes; then :
+  :
+			        	CAIRO_WARNING_MESSAGE="${CAIRO_WARNING_MESSAGE}
+
+"'--- The AmigaOS font backend feature is still under active development and is
+--- included in this release only as a preview. It does NOT fully work yet
+--- and incompatible changes may yet be made to AmigaOS font backend specific
+--- API.'
 
 
 
@@ -36197,6 +36447,10 @@ if test -z "${CAIRO_HAS_AMIGAOS_SURFACE_TRUE}" && test -z "${CAIRO_HAS_AMIGAOS_S
   as_fn_error $? "conditional \"CAIRO_HAS_AMIGAOS_SURFACE\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${CAIRO_HAS_AMIGAOS_FONT_TRUE}" && test -z "${CAIRO_HAS_AMIGAOS_FONT_FALSE}"; then
+  as_fn_error $? "conditional \"CAIRO_HAS_AMIGAOS_FONT\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${CAIRO_HAS_PTHREAD_TRUE}" && test -z "${CAIRO_HAS_PTHREAD_FALSE}"; then
   as_fn_error $? "conditional \"CAIRO_HAS_PTHREAD\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -37700,6 +37954,20 @@ CAIRO_MAKEFILE_win32_features_h_WIN32='$CAIRO_MAKEFILE_win32_features_h_WIN32'
 		amigaos_NONPKGCONFIG_CFLAGS='$amigaos_NONPKGCONFIG_CFLAGS'
 
 		SED='$SED'
+		amigaos_font_BASE='$amigaos_font_BASE'
+		amigaos_font_REQUIRES='$amigaos_font_REQUIRES'
+		amigaos_font_NONPKGCONFIG_LIBS='$amigaos_font_NONPKGCONFIG_LIBS'
+		amigaos_font_NONPKGCONFIG_EXTRA_LIBS='$amigaos_font_NONPKGCONFIG_EXTRA_LIBS'
+		amigaos_font_NONPKGCONFIG_CFLAGS='$amigaos_font_NONPKGCONFIG_CFLAGS'
+
+		SED='$SED'
+		amigaos_font_BASE='$amigaos_font_BASE'
+		amigaos_font_REQUIRES='$amigaos_font_REQUIRES'
+		amigaos_font_NONPKGCONFIG_LIBS='$amigaos_font_NONPKGCONFIG_LIBS'
+		amigaos_font_NONPKGCONFIG_EXTRA_LIBS='$amigaos_font_NONPKGCONFIG_EXTRA_LIBS'
+		amigaos_font_NONPKGCONFIG_CFLAGS='$amigaos_font_NONPKGCONFIG_CFLAGS'
+
+		SED='$SED'
 		gobject_BASE='$gobject_BASE'
 		gobject_REQUIRES='$gobject_REQUIRES'
 		gobject_NONPKGCONFIG_LIBS='$gobject_NONPKGCONFIG_LIBS'
@@ -37803,6 +38071,8 @@ do
     "cairo-xml-uninstalled.pc") CONFIG_FILES="$CONFIG_FILES cairo-xml-uninstalled.pc:src/cairo-features-uninstalled.pc.in" ;;
     "src/cairo-amigaos.pc") CONFIG_FILES="$CONFIG_FILES src/cairo-amigaos.pc:src/cairo-features.pc.in" ;;
     "cairo-amigaos-uninstalled.pc") CONFIG_FILES="$CONFIG_FILES cairo-amigaos-uninstalled.pc:src/cairo-features-uninstalled.pc.in" ;;
+    "src/cairo-amigaos-font.pc") CONFIG_FILES="$CONFIG_FILES src/cairo-amigaos-font.pc:src/cairo-features.pc.in" ;;
+    "cairo-amigaos-font-uninstalled.pc") CONFIG_FILES="$CONFIG_FILES cairo-amigaos-font-uninstalled.pc:src/cairo-features-uninstalled.pc.in" ;;
     "src/cairo-gobject.pc") CONFIG_FILES="$CONFIG_FILES src/cairo-gobject.pc:src/cairo-features.pc.in" ;;
     "cairo-gobject-uninstalled.pc") CONFIG_FILES="$CONFIG_FILES cairo-gobject-uninstalled.pc:src/cairo-features-uninstalled.pc.in" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
@@ -39666,12 +39936,20 @@ $as_echo "$as_me: $_config_file is unchanged" >&6;}
 		as_fn_error $? "failed to update cairo-xml-uninstalled.pc" "$LINENO" 5
 	 ;;
     "src/cairo-amigaos.pc":F) 		mv "src/cairo-amigaos.pc" "src/cairo-amigaos.pc.tmp" &&
-		$SED "		s%@FEATURE_PC@%cairo-amigaos%g;		s%@FEATURE_NAME@%amigaos surface backend%g;		s%@FEATURE_BASE@%$amigaos_BASE%g;		s%@FEATURE_REQUIRES@%$amigaos_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$amigaos_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$amigaos_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$amigaos_NONPKGCONFIG_CFLAGS%g;		" < "src/cairo-amigaos.pc.tmp" > "src/cairo-amigaos.pc" && rm -f "src/cairo-amigaos.pc.tmp" ||
+		$SED "		s%@FEATURE_PC@%cairo-amigaos%g;		s%@FEATURE_NAME@%AmigaOS surface backend%g;		s%@FEATURE_BASE@%$amigaos_BASE%g;		s%@FEATURE_REQUIRES@%$amigaos_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$amigaos_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$amigaos_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$amigaos_NONPKGCONFIG_CFLAGS%g;		" < "src/cairo-amigaos.pc.tmp" > "src/cairo-amigaos.pc" && rm -f "src/cairo-amigaos.pc.tmp" ||
 		as_fn_error $? "failed to update src/cairo-amigaos.pc" "$LINENO" 5
 	 ;;
     "cairo-amigaos-uninstalled.pc":F) 		mv "cairo-amigaos-uninstalled.pc" "cairo-amigaos-uninstalled.pc.tmp" &&
-		$SED "		s%@FEATURE_PC@%cairo-amigaos%g;		s%@FEATURE_NAME@%amigaos surface backend%g;		s%@FEATURE_BASE@%$amigaos_BASE%g;		s%@FEATURE_REQUIRES@%$amigaos_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$amigaos_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$amigaos_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$amigaos_NONPKGCONFIG_CFLAGS%g;		" < "cairo-amigaos-uninstalled.pc.tmp" > "cairo-amigaos-uninstalled.pc" && rm -f "cairo-amigaos-uninstalled.pc.tmp" ||
+		$SED "		s%@FEATURE_PC@%cairo-amigaos%g;		s%@FEATURE_NAME@%AmigaOS surface backend%g;		s%@FEATURE_BASE@%$amigaos_BASE%g;		s%@FEATURE_REQUIRES@%$amigaos_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$amigaos_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$amigaos_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$amigaos_NONPKGCONFIG_CFLAGS%g;		" < "cairo-amigaos-uninstalled.pc.tmp" > "cairo-amigaos-uninstalled.pc" && rm -f "cairo-amigaos-uninstalled.pc.tmp" ||
 		as_fn_error $? "failed to update cairo-amigaos-uninstalled.pc" "$LINENO" 5
+	 ;;
+    "src/cairo-amigaos-font.pc":F) 		mv "src/cairo-amigaos-font.pc" "src/cairo-amigaos-font.pc.tmp" &&
+		$SED "		s%@FEATURE_PC@%cairo-amigaos-font%g;		s%@FEATURE_NAME@%AmigaOS font backend%g;		s%@FEATURE_BASE@%$amigaos_font_BASE%g;		s%@FEATURE_REQUIRES@%$amigaos_font_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$amigaos_font_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$amigaos_font_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$amigaos_font_NONPKGCONFIG_CFLAGS%g;		" < "src/cairo-amigaos-font.pc.tmp" > "src/cairo-amigaos-font.pc" && rm -f "src/cairo-amigaos-font.pc.tmp" ||
+		as_fn_error $? "failed to update src/cairo-amigaos-font.pc" "$LINENO" 5
+	 ;;
+    "cairo-amigaos-font-uninstalled.pc":F) 		mv "cairo-amigaos-font-uninstalled.pc" "cairo-amigaos-font-uninstalled.pc.tmp" &&
+		$SED "		s%@FEATURE_PC@%cairo-amigaos-font%g;		s%@FEATURE_NAME@%AmigaOS font backend%g;		s%@FEATURE_BASE@%$amigaos_font_BASE%g;		s%@FEATURE_REQUIRES@%$amigaos_font_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$amigaos_font_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$amigaos_font_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$amigaos_font_NONPKGCONFIG_CFLAGS%g;		" < "cairo-amigaos-font-uninstalled.pc.tmp" > "cairo-amigaos-font-uninstalled.pc" && rm -f "cairo-amigaos-font-uninstalled.pc.tmp" ||
+		as_fn_error $? "failed to update cairo-amigaos-font-uninstalled.pc" "$LINENO" 5
 	 ;;
     "src/cairo-gobject.pc":F) 		mv "src/cairo-gobject.pc" "src/cairo-gobject.pc.tmp" &&
 		$SED "		s%@FEATURE_PC@%cairo-gobject%g;		s%@FEATURE_NAME@%gobject functions%g;		s%@FEATURE_BASE@%$gobject_BASE%g;		s%@FEATURE_REQUIRES@%$gobject_REQUIRES%g;		s%@FEATURE_NONPKGCONFIG_LIBS@%$gobject_NONPKGCONFIG_LIBS%g;		s%@FEATURE_NONPKGCONFIG_EXTRA_LIBS@%$gobject_NONPKGCONFIG_EXTRA_LIBS%g;		s%@FEATURE_NONPKGCONFIG_CFLAGS@%$gobject_NONPKGCONFIG_CFLAGS%g;		" < "src/cairo-gobject.pc.tmp" > "src/cairo-gobject.pc" && rm -f "src/cairo-gobject.pc.tmp" ||

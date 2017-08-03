@@ -1548,7 +1548,8 @@ typedef enum _cairo_font_type {
     CAIRO_FONT_TYPE_FT,
     CAIRO_FONT_TYPE_WIN32,
     CAIRO_FONT_TYPE_QUARTZ,
-    CAIRO_FONT_TYPE_USER
+    CAIRO_FONT_TYPE_USER,
+    CAIRO_FONT_TYPE_AMIGAOS
 } cairo_font_type_t;
 
 cairo_public cairo_font_type_t
@@ -2395,7 +2396,7 @@ typedef enum _cairo_surface_type {
     CAIRO_SURFACE_TYPE_SKIA,
     CAIRO_SURFACE_TYPE_SUBSURFACE,
     CAIRO_SURFACE_TYPE_COGL,
-	CAIRO_SURFACE_TYPE_AMIGAOS
+    CAIRO_SURFACE_TYPE_AMIGAOS
 } cairo_surface_type_t;
 
 cairo_public cairo_surface_type_t

@@ -688,7 +688,11 @@ CAIRO_ENABLE_SURFACE_BACKEND(xml, xml, no, [
 
 dnl ===========================================================================
 
-CAIRO_ENABLE_SURFACE_BACKEND(amigaos, amigaos, no)
+CAIRO_ENABLE_SURFACE_BACKEND(amigaos, AmigaOS, no)
+
+dnl ===========================================================================
+
+CAIRO_ENABLE_FONT_BACKEND(amigaos_font, AmigaOS, no)
 
 dnl ===========================================================================
 
