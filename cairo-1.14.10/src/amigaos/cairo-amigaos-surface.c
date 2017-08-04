@@ -221,7 +221,8 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	                                                                     width, height,
 	                                                                     stride);
 
-	surface->map_image = image;
+	surface->map_pixfmt = pixfmt;
+	surface->map_image  = image;
 
 	return image;
 }
@@ -233,7 +234,7 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 	cairo_amigaos_surface_t *surface = abstract_surface;
 	int                      x, y, width, height;
 	uint32                   pixfmt;
-	int                      bpp, stride;
+	int                      stride;
 	uint8                   *data;
 
 	debugf("_cairo_amigaos_surface_unmap_image(%p, %p)\n",
@@ -244,27 +245,8 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 	width  = surface->map_rect.width;
 	height = surface->map_rect.height;
 
-	switch (surface->content) {
-		case CAIRO_CONTENT_COLOR:
-			bpp    = 4;
-			pixfmt = PIXF_A8R8G8B8;
-			break;
-
-		case CAIRO_CONTENT_ALPHA:
-			bpp    = 1;
-			pixfmt = PIXF_ALPHA8;
-			break;
-
-		case CAIRO_CONTENT_COLOR_ALPHA:
-			bpp    = 4;
-			pixfmt = PIXF_A8R8G8B8;
-			break;
-
-		default:
-			return _cairo_error(CAIRO_STATUS_INVALID_CONTENT);
-	}
-
-	stride = width * bpp;
+	pixfmt = surface->map_pixfmt;
+	stride = image->stride;
 	data   = image->data;
 
 	IGraphics->WritePixelArray(data, 0, 0, stride, pixfmt,
