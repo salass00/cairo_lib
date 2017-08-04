@@ -187,11 +187,18 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	surface->map_rect.width  = width;
 	surface->map_rect.height = height;
 
+	pixfmt = IGraphics->GetBitMapAttr(surface->bitmap, BMA_PIXELFORMAT);
+
 	switch (surface->content) {
 		case CAIRO_CONTENT_COLOR:
-			bpp    = 4;
-			pixfmt = PIXF_A8R8G8B8;
-			format = CAIRO_FORMAT_RGB24;
+			if (pixfmt == PIXF_R5G6B5) {
+				bpp    = 2;
+				format = CAIRO_FORMAT_RGB16_565;
+			} else {
+				bpp    = 4;
+				pixfmt = PIXF_A8R8G8B8;
+				format = CAIRO_FORMAT_RGB24;
+			}
 			break;
 
 		case CAIRO_CONTENT_ALPHA:
