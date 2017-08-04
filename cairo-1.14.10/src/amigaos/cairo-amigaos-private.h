@@ -48,6 +48,7 @@ typedef struct _cairo_amigaos_surface {
 	int                    width, height;
 
 	cairo_rectangle_int_t  map_rect;
+	APTR                   map_lock;
 	uint32                 map_pixfmt;
 	cairo_image_surface_t *map_image;
 } cairo_amigaos_surface_t;

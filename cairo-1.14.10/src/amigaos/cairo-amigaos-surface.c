@@ -188,6 +188,35 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	surface->map_rect.height = height;
 
 	pixfmt = IGraphics->GetBitMapAttr(surface->bitmap, BMA_PIXELFORMAT);
+	format = _amigaos_pixel_format_to_cairo_format(pixfmt);
+
+	if (format != CAIRO_FORMAT_INVALID) {
+		uint32 onboard;
+
+		surface->map_lock = IGraphics->LockBitMapTags(surface->bitmap,
+		                                              LBM_BaseAddress, &data,
+		                                              LBM_BytesPerRow, &stride,
+		                                              LBM_IsOnBoard,   &onboard,
+		                                              TAG_END);
+
+		if (surface->map_lock != NULL && onboard == FALSE) {
+			bpp = IGraphics->GetBitMapAttr(surface->bitmap, BMA_BYTESPERPIXEL);
+
+			data += (y * stride) + (x * bpp);
+
+			image = (cairo_image_surface_t *)cairo_image_surface_create_for_data(data, format,
+			                                                                     width, height,
+			                                                                     stride);
+
+			surface->map_pixfmt = pixfmt;
+			surface->map_image  = image;
+
+			return image;
+		}
+
+		IGraphics->UnlockBitMap(surface->map_lock);
+		surface->map_lock = NULL;
+	}
 
 	switch (surface->content) {
 		case CAIRO_CONTENT_COLOR:
@@ -252,16 +281,23 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 	width  = surface->map_rect.width;
 	height = surface->map_rect.height;
 
-	pixfmt = surface->map_pixfmt;
-	stride = image->stride;
-	data   = image->data;
+	if (surface->map_lock != NULL) {
+		cairo_surface_destroy(&image->base);
 
-	IGraphics->WritePixelArray(data, 0, 0, stride, pixfmt,
+		IGraphics->UnlockBitMap(surface->map_lock);
+		surface->map_lock = NULL;
+	} else {
+		pixfmt = surface->map_pixfmt;
+		stride = image->stride;
+		data   = image->data;
+
+		IGraphics->WritePixelArray(data, 0, 0, stride, pixfmt,
 	                           surface->rastport, surface->xoff + x, surface->yoff + y,
 	                           width, height);
 
-	cairo_surface_destroy(&image->base);
-	free(data);
+		cairo_surface_destroy(&image->base);
+		free(data);
+	}
 
 	surface->map_image = NULL;
 
@@ -448,6 +484,9 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	surface->yoff   = 0;
 	surface->width  = width;
 	surface->height = height;
+
+	surface->map_lock  = NULL;
+	surface->map_image = NULL;
 
 	pixfmt = IGraphics->GetBitMapAttr(bitmap, BMA_PIXELFORMAT);
 
