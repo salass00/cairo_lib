@@ -244,6 +244,9 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 	                           width, height);
 
 	cairo_surface_destroy(&image->base);
+	free(data);
+
+	surface->map_image = NULL;
 
 	return CAIRO_STATUS_SUCCESS;
 }
