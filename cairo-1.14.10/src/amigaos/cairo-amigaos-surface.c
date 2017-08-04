@@ -87,7 +87,7 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 	switch (content) {
 		case CAIRO_CONTENT_COLOR:
 			depth  = 24;
-			pixfmt = PIXF_R8G8B8;
+			pixfmt = PIXF_A8R8G8B8;
 			break;
 
 		case CAIRO_CONTENT_ALPHA:
@@ -161,8 +161,8 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 
 	switch (surface->content) {
 		case CAIRO_CONTENT_COLOR:
-			bpp    = 3;
-			pixfmt = PIXF_R8G8B8;
+			bpp    = 4;
+			pixfmt = PIXF_A8R8G8B8;
 			format = CAIRO_FORMAT_RGB24;
 			break;
 
@@ -218,8 +218,8 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 
 	switch (surface->content) {
 		case CAIRO_CONTENT_COLOR:
-			bpp    = 3;
-			pixfmt = PIXF_R8G8B8;
+			bpp    = 4;
+			pixfmt = PIXF_A8R8G8B8;
 			break;
 
 		case CAIRO_CONTENT_ALPHA:
