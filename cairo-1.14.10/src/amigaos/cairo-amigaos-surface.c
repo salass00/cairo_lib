@@ -408,8 +408,6 @@ cairo_amigaos_surface_create (struct BitMap *bitmap)
 
 	debugf("cairo_amigaos_surface_create(%p)\n", bitmap);
 
-	surface = (cairo_amigaos_surface_t *)malloc(sizeof(cairo_amigaos_surface_t));
-
 	width  = IGraphics->GetBitMapAttr(bitmap, BMA_ACTUALWIDTH);
 	height = IGraphics->GetBitMapAttr(bitmap, BMA_HEIGHT);
 
