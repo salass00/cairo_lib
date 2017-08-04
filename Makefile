@@ -16,6 +16,8 @@ else
 	HOSTARG := 
 endif
 
+TESTS := tests/rectangles tests/lines
+
 .PHONY: all
 all: build-cairo
 
@@ -29,16 +31,20 @@ build-cairo: cairo-build/Makefile
 	$(MAKE) -C cairo-build
 
 .PHONY: build-tests
-build-tests: tests/rectangles
+build-tests: $(TESTS)
 
 tests/rectangles: tests/rectangles.c
+	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
+	$(STRIP) -R.comment -o $@ $@.debug
+
+tests/lines: tests/lines.c
 	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
 	$(STRIP) -R.comment -o $@ $@.debug
 
 .PHONY: clean
 clean:
 	rm -rf cairo-build
-	rm -f tests/rectangles tests/rectangles.debug
+	rm -f $(TESTS) tests/*.debug
 
 .PHONY: install
 install: cairo-build/Makefile

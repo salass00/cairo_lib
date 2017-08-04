@@ -3,4 +3,5 @@ cairo-1.14.10/autom4te.cache
 cairo-build
 # Ignore test executables
 tests/rectangles
-tests/rectangles.debug
+tests/lines
+tests/*.debug
