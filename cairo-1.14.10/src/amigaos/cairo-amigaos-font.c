@@ -182,7 +182,8 @@ _cairo_amigaos_scaled_font_glyph_init_surface_a1 (cairo_amigaos_scaled_font_t *f
 {
 	cairo_image_surface_t *surface;
 	uint8_t               *src, *dst;
-	int                    xoff, x, y;
+	int                    y, byte, byteoff;
+	unsigned int           shift;
 
 	if (gm == NULL) {
 		surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A1, 1, 1);
@@ -203,15 +204,12 @@ _cairo_amigaos_scaled_font_glyph_init_surface_a1 (cairo_amigaos_scaled_font_t *f
 	src = gm->glm_BitMap + (gm->glm_BMModulo * gm->glm_BlackTop);
 	dst = surface->data;
 
-	xoff = gm->glm_BlackLeft;
+	byteoff = gm->glm_BlackLeft >> 3;
+	shift   = gm->glm_BlackLeft & 7;
 
 	for (y = 0; y < gm->glm_BlackHeight; y++) {
-		for (x = 0; x < gm->glm_BlackWidth; x++) {
-			if (src[(xoff + x) / 8] & (1 << (7 - ((xoff + x) % 8))))
-				dst[x / 8] |= (1 << (x % 8));
-			else
-				dst[x / 8] &= ~(1 << (x % 8));
-		}
+		for (byte = 0; byte < ((gm->glm_BlackWidth + 7) >> 3); byte++)
+			dst[byte] = (src[byte + byteoff] << shift) | (src[byte + byteoff + 1] >> (8 - shift));
 
 		src += gm->glm_BMModulo;
 		dst += surface->stride;
