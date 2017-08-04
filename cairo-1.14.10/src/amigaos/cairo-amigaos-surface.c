@@ -50,6 +50,34 @@ void _cairo_amigaos_debugf(const char *fmt, ...)
 }
 #endif
 
+/* Returns CAIRO_FORMAT_INVALID for pixel formats not directly supported by cairo. */
+static cairo_format_t
+_amigaos_pixel_format_to_cairo_format (uint32 pixfmt)
+{
+	cairo_format_t format;
+
+	switch (pixfmt) {
+		case PIXF_A8R8G8B8:
+			format = CAIRO_FORMAT_ARGB32;
+			break;
+
+		case PIXF_ALPHA8:
+		case PIXF_CLUT:
+			format = CAIRO_FORMAT_A8;
+			break;
+
+		case PIXF_R5G6B5:
+			format = CAIRO_FORMAT_RGB16_565;
+			break;
+
+		default:
+			format = CAIRO_FORMAT_INVALID;
+			break;
+	}
+
+	return format;
+}
+
 static cairo_status_t
 _cairo_amigaos_surface_finish (void *abstract_surface)
 {
