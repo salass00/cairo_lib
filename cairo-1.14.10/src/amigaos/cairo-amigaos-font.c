@@ -349,9 +349,11 @@ _cairo_amigaos_scaled_font_text_to_glyphs (void                        *abstract
 	*glyphs_out = glyphs;
 	*num_glyphs = j;
 
-	*clusters      = NULL;
-	*num_clusters  = 0;
-	*cluster_flags = 0;
+	if (clusters != NULL) {
+		*clusters      = NULL;
+		*num_clusters  = 0;
+		*cluster_flags = 0;
+	}
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -456,6 +458,8 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 		free(font);
 		return status;
 	}
+
+	*font_out = &font->base;
 
 	return CAIRO_STATUS_SUCCESS;
 }
