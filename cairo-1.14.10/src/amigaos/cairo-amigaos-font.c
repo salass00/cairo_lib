@@ -61,6 +61,8 @@ _cairo_amigaos_scaled_font_fini (void *abstract_font)
 {
 	cairo_amigaos_scaled_font_t *font = abstract_font;
 
+	debugf("_cairo_amigaos_scaled_font_fini(%p)\n", abstract_font);
+
 	IDiskfont->CloseOutlineFont(font->outline_font, NULL);
 	font->outline_font = NULL;
 }
@@ -107,6 +109,8 @@ _cairo_amigaos_scaled_font_glyph_init_metrics (cairo_amigaos_scaled_font_t *font
 {
 	cairo_text_extents_t extents;
 
+	debugf("_cairo_amigaos_scaled_font_glyph_init_metrics(%p, %p, %p)\n", font, glyph, gm);
+
 	if (gm != NULL) {
 		extents.x_bearing = gm->glm_X0;
 		extents.y_bearing = -gm->glm_Y0;
@@ -137,6 +141,8 @@ _cairo_amigaos_scaled_font_glyph_init_surface_a8 (cairo_amigaos_scaled_font_t *f
 	uint8_t               *src, *dst;
 	int                    src_mod, dst_mod;
 	int                    x, y;
+
+	debugf("_cairo_amigaos_scaled_font_glyph_init_surface_a8(%p, %p, %p)\n", font, glyph, gm);
 
 	if (gm == NULL) {
 		surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A8, 1, 1);
@@ -185,6 +191,8 @@ _cairo_amigaos_scaled_font_glyph_init_surface_a1 (cairo_amigaos_scaled_font_t *f
 	int                    y, byte, byteoff;
 	unsigned int           shift;
 
+	debugf("_cairo_amigaos_scaled_font_glyph_init_surface_a1(%p, %p, %p)\n", font, glyph, gm);
+
 	if (gm == NULL) {
 		surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A1, 1, 1);
 		if (surface->base.status != CAIRO_STATUS_SUCCESS)
@@ -230,6 +238,8 @@ _cairo_amigaos_scaled_font_glyph_init (void                      *abstract_font,
 	cairo_amigaos_scaled_font_t *font = abstract_font;
 	struct GlyphMap             *gm;
 	cairo_status_t               status;
+
+	debugf("_cairo_amigaos_scaled_font_glyph_init(%p, %p, %d)\n", abstract_font, glyph, info);
 
 	if (info & CAIRO_SCALED_GLYPH_INFO_PATH)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -303,7 +313,10 @@ _cairo_amigaos_scaled_font_text_to_glyphs (void                        *abstract
 	struct GlyphMap             *gm;
 	cairo_status_t               status;
 
-	status = _cairo_utf8_to_ucs4(utf8, -1, &ucs4, &len);
+	debugf("_cairo_amigaos_scaled_font_text_to_glyphs(%p, %f, %f, %p, %d, %p, %p, %p, %p, %p)\n",
+	        abstract_font, x, y, utf8, utf8_len, glyphs_out, num_glyphs, clusters, num_clusters, cluster_flags);
+
+	status = _cairo_utf8_to_ucs4(utf8, utf8_len, &ucs4, &len);
 	if (status != CAIRO_STATUS_SUCCESS)
 		return status;
 
@@ -336,6 +349,10 @@ _cairo_amigaos_scaled_font_text_to_glyphs (void                        *abstract
 	*glyphs_out = glyphs;
 	*num_glyphs = j;
 
+	*clusters      = NULL;
+	*num_clusters  = 0;
+	*cluster_flags = 0;
+
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -357,6 +374,8 @@ _cairo_amigaos_font_face_destroy (void *abstract_face)
 {
 	cairo_amigaos_font_face_t *face = abstract_face;
 
+	debugf("_cairo_amigaos_font_face_destroy(%p)\n", abstract_face);
+
 	free(face->filename);
 	face->filename = NULL;
 
@@ -377,6 +396,9 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 	struct OutlineFont          *outline_font;
 	struct EGlyphEngine         *engine;
 	cairo_amigaos_scaled_font_t *font;
+
+	debugf("_cairo_amigaos_font_face_scaled_font_create(%p, %p, %p, %p, %p)\n",
+	       abstract_face, font_matrix, ctm, options, font_out);
 
 	cairo_matrix_multiply(&scale, font_matrix, ctm);
 	status = _cairo_matrix_compute_basis_scale_factors(&scale, &xscale, &yscale, 1);
@@ -450,6 +472,8 @@ cairo_font_face_t *
 cairo_amigaos_font_face_create (const char *filename)
 {
 	cairo_amigaos_font_face_t *face;
+
+	debugf("cairo_amigaos_font_face_create(%p)\n", filename);
 
 	face = malloc(sizeof(cairo_amigaos_font_face_t));
 
