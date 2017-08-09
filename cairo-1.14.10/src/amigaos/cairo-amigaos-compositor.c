@@ -79,6 +79,17 @@ typedef struct {
 	float x, y, s, t, w;
 } amigaos_vertex_t;
 
+#define VERTEX(_x, _y, _s, _t, _w) \
+	({ \
+		amigaos_vertex_t vertex; \
+		vertex.x = (_x); \
+		vertex.y = (_y); \
+		vertex.s = (_s); \
+		vertex.t = (_t); \
+		vertex.w = (_w); \
+		vertex; \
+	})
+
 struct alpha_box {
 	struct BitMap *src, *dst;
 	uint8_t        alpha;
@@ -96,41 +107,12 @@ static cairo_bool_t alpha_box (cairo_box_t *box, void *user_data)
 	x2 = _cairo_fixed_integer_part(box->p2.x);
 	y2 = _cairo_fixed_integer_part(box->p2.y);
 
-	vertices[0].x = x1;
-	vertices[0].y = y1;
-	vertices[0].s = 0;
-	vertices[0].t = 0;
-	vertices[0].w = 1;
-
-	vertices[1].x = x2;
-	vertices[1].y = y1;
-	vertices[1].s = 1;
-	vertices[1].t = 0;
-	vertices[1].w = 1;
-
-	vertices[2].x = x1;
-	vertices[2].y = y2;
-	vertices[2].s = 0;
-	vertices[2].t = 1;
-	vertices[2].w = 1;
-
-	vertices[3].x = x1;
-	vertices[3].y = y2;
-	vertices[3].s = 0;
-	vertices[3].t = 1;
-	vertices[3].w = 1;
-
-	vertices[4].x = x2;
-	vertices[4].y = y1;
-	vertices[4].s = 1;
-	vertices[4].t = 0;
-	vertices[4].w = 1;
-
-	vertices[5].x = x2;
-	vertices[5].y = y2;
-	vertices[5].s = 1;
-	vertices[5].t = 1;
-	vertices[5].w = 1;
+	vertices[0] = VERTEX(x1, y1, 0, 0, 1);
+	vertices[1] = VERTEX(x2, y1, 1, 0, 1);
+	vertices[2] = VERTEX(x1, y2, 0, 1, 1);
+	vertices[3] = VERTEX(x1, y2, 0, 1, 1);
+	vertices[4] = VERTEX(x2, y1, 1, 0, 1);
+	vertices[5] = VERTEX(x2, y2, 1, 1, 1);
 
 	error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src, ab->dst,
 		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
