@@ -16,7 +16,7 @@ else
 	HOSTARG := 
 endif
 
-TESTS := tests/rectangles tests/lines tests/text
+TESTS := tests/rectangles tests/alpha_rectangles tests/lines tests/text
 
 .PHONY: all
 all: build-cairo
@@ -34,6 +34,10 @@ build-cairo: cairo-build/Makefile
 build-tests: $(TESTS)
 
 tests/rectangles: tests/rectangles.o tests/support.o
+	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
+	$(STRIP) -R.comment -o $@ $@.debug
+
+tests/alpha_rectangles: tests/alpha_rectangles.o tests/support.o
 	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
 	$(STRIP) -R.comment -o $@ $@.debug
 
