@@ -4,4 +4,5 @@ cairo-build
 # Ignore test executables
 tests/rectangles
 tests/lines
+tests/text
 tests/*.debug

@@ -16,7 +16,7 @@ else
 	HOSTARG := 
 endif
 
-TESTS := tests/rectangles tests/lines
+TESTS := tests/rectangles tests/lines tests/text
 
 .PHONY: all
 all: build-cairo
@@ -38,6 +38,10 @@ tests/rectangles: tests/rectangles.c
 	$(STRIP) -R.comment -o $@ $@.debug
 
 tests/lines: tests/lines.c
+	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
+	$(STRIP) -R.comment -o $@ $@.debug
+
+tests/text: tests/text.c
 	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
 	$(STRIP) -R.comment -o $@ $@.debug
 
