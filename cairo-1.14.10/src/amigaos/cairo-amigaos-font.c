@@ -413,7 +413,7 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 	double                       yorigin, ascent, descent;
 	double                       width, max_width;
 	struct GlyphMap             *gm;
-    cairo_font_extents_t         extents;
+	cairo_font_extents_t         extents;
 
 	debugf("_cairo_amigaos_font_face_scaled_font_create(%p, %p, %p, %p, %p)\n",
 	       abstract_face, font_matrix, ctm, options, font_out);
@@ -518,13 +518,13 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 		_release_glyph_map(font, gm);
 	}
 
-    extents.ascent        = ascent / font->yscale;
-    extents.descent       = descent / font->yscale;
-    extents.height        = extents.ascent * 1.2 + extents.descent;
-    extents.max_x_advance = max_width;
-    extents.max_y_advance = 0;
+	extents.ascent        = ascent / font->yscale;
+	extents.descent       = descent / font->yscale;
+	extents.height        = extents.ascent * 1.2 + extents.descent;
+	extents.max_x_advance = max_width;
+	extents.max_y_advance = 0;
 
-    status = _cairo_scaled_font_set_metrics (&font->base, &extents);
+	status = _cairo_scaled_font_set_metrics (&font->base, &extents);
 	if (status) {
 		IDiskfont->CloseOutlineFont(outline_font, NULL);
 		free(font);
