@@ -6,3 +6,5 @@ tests/rectangles
 tests/lines
 tests/text
 tests/*.debug
+# Ignore object and archive files
+*.[oa]

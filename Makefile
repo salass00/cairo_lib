@@ -33,16 +33,16 @@ build-cairo: cairo-build/Makefile
 .PHONY: build-tests
 build-tests: $(TESTS)
 
-tests/rectangles: tests/rectangles.c
-	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
+tests/rectangles: tests/rectangles.o tests/support.o
+	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
 	$(STRIP) -R.comment -o $@ $@.debug
 
-tests/lines: tests/lines.c
-	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
+tests/lines: tests/lines.o tests/support.o
+	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
 	$(STRIP) -R.comment -o $@ $@.debug
 
-tests/text: tests/text.c
-	$(CC) $(LDFLAGS) -o $@.debug $(CFLAGS) $^ $(LIBS)
+tests/text: tests/text.o tests/support.o
+	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
 	$(STRIP) -R.comment -o $@ $@.debug
 
 .PHONY: clean
