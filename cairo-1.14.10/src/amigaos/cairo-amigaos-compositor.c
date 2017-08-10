@@ -33,6 +33,7 @@
 
 #include <graphics/composite.h>
 #include <proto/graphics.h>
+#include <proto/layers.h>
 
 #define ARGB(a, r, g, b) (((uint32_t)(a) << 24) | ((uint32_t)(r) << 16) | ((uint32_t)(g) << 8) | (uint32_t)(b))
 
@@ -77,11 +78,11 @@ fill_boxes (cairo_amigaos_surface_t *dst,
 
 typedef struct {
 	float x, y, s, t, w;
-} amigaos_vertex_t;
+} my_vertex_t;
 
 #define VERTEX(_x, _y, _s, _t, _w) \
 	({ \
-		amigaos_vertex_t vertex; \
+		my_vertex_t vertex; \
 		vertex.x = (_x); \
 		vertex.y = (_y); \
 		vertex.s = (_s); \
@@ -91,38 +92,79 @@ typedef struct {
 	})
 
 struct alpha_box {
-	struct BitMap *src, *dst;
-	uint8_t        alpha;
+	struct BitMap   *src_bm, *dst_bm;
+	struct RastPort *dst_rp;
+	uint32           alpha;
 };
+
+static void clip_alpha_box (struct Hook *hook, struct RastPort *rp, struct BackFillMessage *bfm)
+{
+	struct alpha_box *ab   = (struct alpha_box *)hook->h_Data;
+	struct Rectangle *rect = &bfm->Bounds;
+	my_vertex_t       vertices[6];
+	uint32            error;
+
+	vertices[0] = VERTEX(rect->MinX, rect->MinY, 0, 0, 1);
+	vertices[1] = VERTEX(rect->MaxX, rect->MinY, 1, 0, 1);
+	vertices[2] = VERTEX(rect->MinX, rect->MaxY, 0, 1, 1);
+	vertices[3] = VERTEX(rect->MinX, rect->MaxY, 0, 1, 1);
+	vertices[4] = VERTEX(rect->MaxX, rect->MinY, 1, 0, 1);
+	vertices[5] = VERTEX(rect->MaxX, rect->MaxY, 1, 1, 1);
+
+	error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst_bm,
+		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
+		COMPTAG_VertexArray,  vertices,
+		COMPTAG_VertexFormat, COMPVF_STW0_Present,
+		COMPTAG_NumTriangles, 2,
+		COMPTAG_SrcAlpha,     ab->alpha,
+		TAG_END);
+}
 
 static cairo_bool_t alpha_box (cairo_box_t *box, void *user_data)
 {
 	struct alpha_box *ab = user_data;
-	amigaos_vertex_t  vertices[6];
 	int               x1, y1, x2, y2;
-	uint32            error;
 
 	x1 = _cairo_fixed_integer_part(box->p1.x);
 	y1 = _cairo_fixed_integer_part(box->p1.y);
 	x2 = _cairo_fixed_integer_part(box->p2.x);
 	y2 = _cairo_fixed_integer_part(box->p2.y);
 
-	vertices[0] = VERTEX(x1, y1, 0, 0, 1);
-	vertices[1] = VERTEX(x2, y1, 1, 0, 1);
-	vertices[2] = VERTEX(x1, y2, 0, 1, 1);
-	vertices[3] = VERTEX(x1, y2, 0, 1, 1);
-	vertices[4] = VERTEX(x2, y1, 1, 0, 1);
-	vertices[5] = VERTEX(x2, y2, 1, 1, 1);
+	if (ab->dst_rp->Layer == NULL) {
+		my_vertex_t vertices[6];
+		uint32      error;
 
-	error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src, ab->dst,
-		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
-		COMPTAG_VertexArray,  vertices,
-		COMPTAG_VertexFormat, COMPVF_STW0_Present,
-		COMPTAG_NumTriangles, 2,
-		COMPTAG_SrcAlpha,     (ab->alpha * 0x10000UL) / 255,
-		TAG_END);
-	if (unlikely (error != COMPERR_Success))
-		return FALSE;
+		vertices[0] = VERTEX(x1, y1, 0, 0, 1);
+		vertices[1] = VERTEX(x2, y1, 1, 0, 1);
+		vertices[2] = VERTEX(x1, y2, 0, 1, 1);
+		vertices[3] = VERTEX(x1, y2, 0, 1, 1);
+		vertices[4] = VERTEX(x2, y1, 1, 0, 1);
+		vertices[5] = VERTEX(x2, y2, 1, 1, 1);
+
+		error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst_bm,
+			COMPTAG_Flags,        COMPFLAG_HardwareOnly,
+			COMPTAG_VertexArray,  vertices,
+			COMPTAG_VertexFormat, COMPVF_STW0_Present,
+			COMPTAG_NumTriangles, 2,
+			COMPTAG_SrcAlpha,     ab->alpha,
+			TAG_END);
+
+		if (unlikely (error != COMPERR_Success))
+			return FALSE;
+	} else {
+		struct Rectangle rect;
+		struct Hook hook;
+
+		rect.MinX = x1;
+		rect.MinY = y1;
+		rect.MaxX = x2;
+		rect.MaxY = y2;
+
+		hook.h_Entry = (HOOKFUNC)clip_alpha_box;
+		hook.h_Data  = (APTR)ab;
+
+		ILayers->DoHookClipRects(&hook, ab->dst_rp, &rect);
+	}
 
 	return TRUE;
 }
@@ -152,13 +194,14 @@ alpha_blend_boxes (cairo_amigaos_surface_t *dst,
 		TAG_END);
 
 	/* We don't use the short values here because they have the alpha premultiplied. */
-	*bm_addr = ARGB(color->alpha * 255, color->red * 255, color->green * 255, color->blue * 255);
+	*bm_addr = ARGB(color->alpha_short >> 8, color->red * 255, color->green * 255, color->blue * 255);
 
 	IGraphics->UnlockBitMap(bm_lock);
 
-	ab.src   = temp_bm;
-	ab.dst   = dst->bitmap;
-	ab.alpha = alpha;
+	ab.src_bm = temp_bm;
+	ab.dst_bm = dst->bitmap;
+	ab.dst_rp = dst->rastport;
+	ab.alpha  = (alpha * 0x10000UL) / 255;
 
 	if (likely (_cairo_boxes_for_each_box(boxes, alpha_box, &ab)))
 		status = CAIRO_STATUS_SUCCESS;
