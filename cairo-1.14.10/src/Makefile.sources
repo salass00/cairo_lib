@@ -474,6 +474,7 @@ cairo_cogl_sources = cairo-cogl-surface.c \
 cairo_amigaos_headers = cairo-amigaos.h
 cairo_amigaos_private = amigaos/cairo-amigaos-private.h
 cairo_amigaos_sources = amigaos/cairo-amigaos-compositor.c \
+                        amigaos/cairo-amigaos-debug.c \
                         amigaos/cairo-amigaos-device.c \
                         amigaos/cairo-amigaos-surface.c
 cairo_amigaos_font_sources = amigaos/cairo-amigaos-font.c

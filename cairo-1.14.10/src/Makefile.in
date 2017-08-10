@@ -581,8 +581,9 @@ am__libcairo_la_SOURCES_DIST = cairo.h cairo-deprecated.h cairo-xlib.h \
 	test-base-compositor-surface.c test-paginated-surface.c \
 	cairo-tee-surface.c cairo-xml-surface.c \
 	amigaos/cairo-amigaos-compositor.c \
-	amigaos/cairo-amigaos-device.c amigaos/cairo-amigaos-surface.c \
-	amigaos/cairo-amigaos-font.c cairo-version.h
+	amigaos/cairo-amigaos-debug.c amigaos/cairo-amigaos-device.c \
+	amigaos/cairo-amigaos-surface.c amigaos/cairo-amigaos-font.c \
+	cairo-version.h
 am__objects_1 =
 @CAIRO_HAS_XLIB_SURFACE_TRUE@am__objects_2 = $(am__objects_1)
 @CAIRO_HAS_XLIB_XRENDER_SURFACE_TRUE@am__objects_3 = $(am__objects_1)
@@ -771,8 +772,8 @@ am__objects_85 = cairo-tee-surface.lo
 @CAIRO_HAS_TEE_SURFACE_TRUE@am__objects_86 = $(am__objects_85)
 am__objects_87 = cairo-xml-surface.lo
 @CAIRO_HAS_XML_SURFACE_TRUE@am__objects_88 = $(am__objects_87)
-am__objects_89 = cairo-amigaos-compositor.lo cairo-amigaos-device.lo \
-	cairo-amigaos-surface.lo
+am__objects_89 = cairo-amigaos-compositor.lo cairo-amigaos-debug.lo \
+	cairo-amigaos-device.lo cairo-amigaos-surface.lo
 @CAIRO_HAS_AMIGAOS_SURFACE_TRUE@am__objects_90 = $(am__objects_89)
 am__objects_91 = cairo-amigaos-font.lo
 @CAIRO_HAS_AMIGAOS_FONT_TRUE@am__objects_92 = $(am__objects_91)
@@ -1711,6 +1712,7 @@ cairo_cogl_sources = cairo-cogl-surface.c \
 cairo_amigaos_headers = cairo-amigaos.h
 cairo_amigaos_private = amigaos/cairo-amigaos-private.h
 cairo_amigaos_sources = amigaos/cairo-amigaos-compositor.c \
+                        amigaos/cairo-amigaos-debug.c \
                         amigaos/cairo-amigaos-device.c \
                         amigaos/cairo-amigaos-surface.c
 
@@ -2161,6 +2163,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-compositor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-device.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-font.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cairo-amigaos-surface.Plo@am__quote@
@@ -2594,6 +2597,13 @@ cairo-amigaos-compositor.lo: amigaos/cairo-amigaos-compositor.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amigaos/cairo-amigaos-compositor.c' object='cairo-amigaos-compositor.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cairo-amigaos-compositor.lo `test -f 'amigaos/cairo-amigaos-compositor.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-compositor.c
+
+cairo-amigaos-debug.lo: amigaos/cairo-amigaos-debug.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cairo-amigaos-debug.lo -MD -MP -MF $(DEPDIR)/cairo-amigaos-debug.Tpo -c -o cairo-amigaos-debug.lo `test -f 'amigaos/cairo-amigaos-debug.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-debug.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cairo-amigaos-debug.Tpo $(DEPDIR)/cairo-amigaos-debug.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amigaos/cairo-amigaos-debug.c' object='cairo-amigaos-debug.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o cairo-amigaos-debug.lo `test -f 'amigaos/cairo-amigaos-debug.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-debug.c
 
 cairo-amigaos-device.lo: amigaos/cairo-amigaos-device.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT cairo-amigaos-device.lo -MD -MP -MF $(DEPDIR)/cairo-amigaos-device.Tpo -c -o cairo-amigaos-device.lo `test -f 'amigaos/cairo-amigaos-device.c' || echo '$(srcdir)/'`amigaos/cairo-amigaos-device.c

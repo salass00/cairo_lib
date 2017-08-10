@@ -35,22 +35,6 @@
 
 #include <proto/graphics.h>
 
-#if DEBUG_AMIGAOS_SURFACES
-#include <stdio.h>
-
-void _cairo_amigaos_debugf(const char *fmt, ...)
-{
-	char buffer[256];
-	va_list ap;
-
-	va_start(ap, fmt);
-	vsnprintf(buffer, sizeof(buffer), fmt, ap);
-	va_end(ap);
-
-	IExec->DebugPrintF("%s", buffer);
-}
-#endif
-
 /* Returns CAIRO_FORMAT_INVALID for pixel formats not directly supported by cairo. */
 static cairo_format_t
 _amigaos_pixel_format_to_cairo_format (uint32 pixfmt)

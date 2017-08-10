@@ -25,60 +25,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CAIRO_AMIGAOS_PRIVATE_H
-#define CAIRO_AMIGAOS_PRIVATE_H
-
-#include "cairo-amigaos.h"
-
 #include "cairoint.h"
 
-#include "cairo-device-private.h"
-#include "cairo-surface-private.h"
+#include "cairo-amigaos-private.h"
 
-#define DEBUG_AMIGAOS_BACKENDS 0
-
-typedef struct _cairo_amigaos_surface {
-	cairo_surface_t        base;
-
-	struct RastPort       *rastport;
-	struct BitMap         *bitmap;
-	BOOL                   free_rastport:1;
-	BOOL                   free_bitmap:1;
-
-	cairo_content_t        content;
-
-	int                    xoff, yoff;
-	int                    width, height;
-
-	cairo_rectangle_int_t  map_rect;
-	APTR                   map_lock;
-	uint32                 map_pixfmt;
-	cairo_image_surface_t *map_image;
-} cairo_amigaos_surface_t;
-
-static inline cairo_bool_t
-_cairo_surface_is_amigaos (const cairo_surface_t *surface)
-{
-	return surface->backend != NULL && surface->backend->type == CAIRO_SURFACE_TYPE_AMIGAOS;
-}
-
-typedef struct _cairo_amigaos_device {
-	cairo_device_t            base;
-
-	const cairo_compositor_t *compositor;
-} cairo_amigaos_device_t;
-
-cairo_device_t *
-_cairo_amigaos_device_get (void);
-
-const cairo_compositor_t *
-_cairo_amigaos_compositor_get (void);
+#include <stdio.h>
 
 #if DEBUG_AMIGAOS_BACKENDS
-void _cairo_amigaos_debugf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-#define debugf(fmt, args...) _cairo_amigaos_debugf(fmt, ## args)
-#else
-#define debugf(fmt, ...)
-#endif
 
-#endif /* CAIRO_AMIGAOS_PRIVATE_H */
+void _cairo_amigaos_debugf(const char *fmt, ...)
+{
+	char buffer[256];
+	va_list ap;
+
+	va_start(ap, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, ap);
+	va_end(ap);
+
+	IExec->DebugPrintF("%s", buffer);
+}
+
+#endif /* DEBUG_AMIGAOS_BACKENDS */
+
