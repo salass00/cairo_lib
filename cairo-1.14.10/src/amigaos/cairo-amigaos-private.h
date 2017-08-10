@@ -56,6 +56,12 @@ typedef struct _cairo_amigaos_surface {
 	cairo_image_surface_t *map_image;
 } cairo_amigaos_surface_t;
 
+static inline cairo_bool_t
+_cairo_surface_is_amigaos (const cairo_surface_t *surface)
+{
+	return surface->backend != NULL && surface->backend->type == CAIRO_SURFACE_TYPE_AMIGAOS;
+}
+
 typedef struct _cairo_amigaos_device {
 	cairo_device_t            base;
 
