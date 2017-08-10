@@ -365,12 +365,21 @@ _cairo_amigaos_compositor_glyphs (const cairo_compositor_t     *_compositor,
 	return status;
 }
 
-const cairo_compositor_t _cairo_amigaos_compositor = {
-	.delegate = &_cairo_fallback_compositor,
-	.paint    = _cairo_amigaos_compositor_paint,
-	.mask     = _cairo_amigaos_compositor_mask,
-	.stroke   = _cairo_amigaos_compositor_stroke,
-	.fill     = _cairo_amigaos_compositor_fill,
-	.glyphs   = _cairo_amigaos_compositor_glyphs
-};
+const cairo_compositor_t *
+_cairo_amigaos_compositor_get (void)
+{
+	static cairo_compositor_t compositor;
+
+	if (compositor.delegate == NULL) {
+		compositor.delegate = &_cairo_fallback_compositor;
+
+		compositor.paint    = _cairo_amigaos_compositor_paint;
+		compositor.mask     = _cairo_amigaos_compositor_mask;
+		compositor.stroke   = _cairo_amigaos_compositor_stroke;
+		compositor.fill     = _cairo_amigaos_compositor_fill;
+		compositor.glyphs   = _cairo_amigaos_compositor_glyphs;
+	}
+
+	return &compositor;
+}
 

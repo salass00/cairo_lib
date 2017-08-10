@@ -2144,6 +2144,7 @@ typedef enum _cairo_device_type {
     CAIRO_DEVICE_TYPE_XML,
     CAIRO_DEVICE_TYPE_COGL,
     CAIRO_DEVICE_TYPE_WIN32,
+    CAIRO_DEVICE_TYPE_AMIGAOS,
 
     CAIRO_DEVICE_TYPE_INVALID = -1
 } cairo_device_type_t;

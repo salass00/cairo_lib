@@ -322,34 +322,40 @@ _cairo_amigaos_surface_get_extents (void                  *abstract_surface,
 }
 
 static cairo_int_status_t
-_cairo_amigaos_surface_paint (void                  *surface,
+_cairo_amigaos_surface_paint (void                  *abstract_surface,
                               cairo_operator_t       op,
                               const cairo_pattern_t *source,
                               const cairo_clip_t    *clip)
 {
-	debugf("_cairo_amigaos_surface_paint(%p, %d, %p, %p)\n",
-	       surface, op, source, clip);
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	cairo_amigaos_device_t  *device  = (cairo_amigaos_device_t *)surface->base.device;
 
-	return _cairo_compositor_paint (&_cairo_amigaos_compositor,
-	                                surface, op, source, clip);
+	debugf("_cairo_amigaos_surface_paint(%p, %d, %p, %p)\n",
+	       abstract_surface, op, source, clip);
+
+	return _cairo_compositor_paint (device->compositor,
+	                                &surface->base, op, source, clip);
 }
 
 static cairo_int_status_t
-_cairo_amigaos_surface_mask (void                  *surface,
+_cairo_amigaos_surface_mask (void                  *abstract_surface,
                              cairo_operator_t       op,
                              const cairo_pattern_t *source,
                              const cairo_pattern_t *mask,
                              const cairo_clip_t    *clip)
 {
-	debugf("_cairo_amigaos_surface_mask(%p, %d, %p, %p, %p)\n",
-	       surface, op, source, mask, clip);
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	cairo_amigaos_device_t  *device  = (cairo_amigaos_device_t *)surface->base.device;
 
-	return _cairo_compositor_mask (&_cairo_amigaos_compositor,
-	                               surface, op, source, mask, clip);
+	debugf("_cairo_amigaos_surface_mask(%p, %d, %p, %p, %p)\n",
+	       abstract_surface, op, source, mask, clip);
+
+	return _cairo_compositor_mask (device->compositor,
+	                               &surface->base, op, source, mask, clip);
 }
 
 static cairo_int_status_t
-_cairo_amigaos_surface_stroke (void                       *surface,
+_cairo_amigaos_surface_stroke (void                       *abstract_surface,
                                cairo_operator_t            op,
                                const cairo_pattern_t      *source,
                                const cairo_path_fixed_t   *path,
@@ -360,17 +366,20 @@ _cairo_amigaos_surface_stroke (void                       *surface,
                                cairo_antialias_t           antialias,
                                const cairo_clip_t         *clip)
 {
-	debugf("_cairo_amigaos_surface_stroke(%p, %d, %p, %p, %p, %p, %p, %f, %d, %p)\n",
-	       surface, op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	cairo_amigaos_device_t  *device  = (cairo_amigaos_device_t *)surface->base.device;
 
-	return _cairo_compositor_stroke (&_cairo_amigaos_compositor,
-	                                 surface, op, source, path,
+	debugf("_cairo_amigaos_surface_stroke(%p, %d, %p, %p, %p, %p, %p, %f, %d, %p)\n",
+	       abstract_surface, op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
+
+	return _cairo_compositor_stroke (device->compositor,
+	                                 &surface->base, op, source, path,
 	                                 style, ctm,ctm_inverse,
 	                                 tolerance, antialias, clip);
 }
 
 static cairo_int_status_t
-_cairo_amigaos_surface_fill (void                     *surface,
+_cairo_amigaos_surface_fill (void                     *abstract_surface,
                              cairo_operator_t          op,
                              const cairo_pattern_t    *source,
                              const cairo_path_fixed_t *path,
@@ -379,17 +388,20 @@ _cairo_amigaos_surface_fill (void                     *surface,
                              cairo_antialias_t         antialias,
                              const cairo_clip_t       *clip)
 {
-	debugf("_cairo_amigaos_surface_fill(%p, %d, %p, %p, %d, %f, %d, %p)\n",
-	       surface, op, source, path, fill_rule, tolerance, antialias, clip);
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	cairo_amigaos_device_t  *device  = (cairo_amigaos_device_t *)surface->base.device;
 
-	return _cairo_compositor_fill (&_cairo_amigaos_compositor,
-	                               surface, op, source, path,
+	debugf("_cairo_amigaos_surface_fill(%p, %d, %p, %p, %d, %f, %d, %p)\n",
+	       abstract_surface, op, source, path, fill_rule, tolerance, antialias, clip);
+
+	return _cairo_compositor_fill (device->compositor,
+	                               &surface->base, op, source, path,
 	                               fill_rule, tolerance, antialias,
 	                               clip);
 }
 
 static cairo_int_status_t
-_cairo_amigaos_surface_glyphs (void                  *surface,
+_cairo_amigaos_surface_glyphs (void                  *abstract_surface,
                                cairo_operator_t       op,
                                const cairo_pattern_t *source,
                                cairo_glyph_t         *glyphs,
@@ -397,11 +409,14 @@ _cairo_amigaos_surface_glyphs (void                  *surface,
                                cairo_scaled_font_t   *scaled_font,
                                const cairo_clip_t    *clip)
 {
-	debugf("_cairo_amigaos_surface_glyphs(%p, %d, %p, %p, %d, %p, %p)\n",
-	       surface, op, source, glyphs, num_glyphs, scaled_font, clip);
+	cairo_amigaos_surface_t *surface = abstract_surface;
+	cairo_amigaos_device_t  *device  = (cairo_amigaos_device_t *)surface->base.device;
 
-	return _cairo_compositor_glyphs (&_cairo_amigaos_compositor,
-	                                 surface, op, source,
+	debugf("_cairo_amigaos_surface_glyphs(%p, %d, %p, %p, %d, %p, %p)\n",
+	       abstract_surface, op, source, glyphs, num_glyphs, scaled_font, clip);
+
+	return _cairo_compositor_glyphs (device->compositor,
+	                                 &surface->base, op, source,
 	                                 glyphs, num_glyphs, scaled_font,
 	                                 clip);
 }
@@ -468,6 +483,7 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	cairo_amigaos_surface_t *surface;
 	struct BitMap           *bitmap;
 	uint32                   pixfmt;
+	cairo_device_t          *device;
 
 	debugf("cairo_amigaos_surface_create_from_rastport(%p, %d, %d, %d, %d)\n", rastport, xoff, yoff, width, height);
 
@@ -508,7 +524,14 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 			break;
 	}
 
-	_cairo_surface_init(&surface->base, &cairo_amigaos_surface_backend, NULL, surface->content);
+	device = _cairo_amigaos_device_get();
+
+	_cairo_surface_init(&surface->base,
+	                    &cairo_amigaos_surface_backend,
+	                    device,
+	                    surface->content);
+
+	cairo_device_destroy(device);
 
 	return &surface->base;
 }

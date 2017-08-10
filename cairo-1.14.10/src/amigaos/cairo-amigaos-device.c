@@ -25,54 +25,58 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CAIRO_AMIGAOS_PRIVATE_H
-#define CAIRO_AMIGAOS_PRIVATE_H
-
-#include "cairo-amigaos.h"
-
 #include "cairoint.h"
 
-#include "cairo-device-private.h"
-#include "cairo-surface-private.h"
+#include "cairo-amigaos-private.h"
 
-#define DEBUG_AMIGAOS_SURFACES 0
+static cairo_device_t *__cairo_amigaos_device;
 
-typedef struct _cairo_amigaos_surface {
-	cairo_surface_t        base;
+static cairo_status_t
+_cairo_amigaos_device_flush (void *abstract_device)
+{
+	return CAIRO_STATUS_SUCCESS;
+}
 
-	struct RastPort       *rastport;
-	struct BitMap         *bitmap;
-	BOOL                   free_rastport:1;
-	BOOL                   free_bitmap:1;
+static void
+_cairo_amigaos_device_finish (void *abstract_device)
+{
+}
 
-	cairo_content_t        content;
+static void
+_cairo_amigaos_device_destroy (void *abstract_device)
+{
+	cairo_amigaos_device_t *device = abstract_device;
 
-	int                    xoff, yoff;
-	int                    width, height;
+	free(device);
+}
 
-	cairo_rectangle_int_t  map_rect;
-	APTR                   map_lock;
-	uint32                 map_pixfmt;
-	cairo_image_surface_t *map_image;
-} cairo_amigaos_surface_t;
-
-typedef struct _cairo_amigaos_device {
-	cairo_device_t            base;
-
-	const cairo_compositor_t *compositor;
-} cairo_amigaos_device_t;
+static const cairo_device_backend_t _cairo_amigaos_device_backend = {
+	.type    = CAIRO_DEVICE_TYPE_AMIGAOS,
+	.lock    = NULL,
+	.unlock  = NULL,
+	.flush   = _cairo_amigaos_device_flush,
+	.finish  = _cairo_amigaos_device_finish,
+	.destroy = _cairo_amigaos_device_destroy
+};
 
 cairo_device_t *
-_cairo_amigaos_device_get (void);
+_cairo_amigaos_device_get (void)
+{
+	cairo_amigaos_device_t *device;
 
-const cairo_compositor_t *
-_cairo_amigaos_compositor_get (void);
+	if (__cairo_amigaos_device != NULL)
+		return cairo_device_reference(__cairo_amigaos_device);
 
-#if DEBUG_AMIGAOS_SURFACES
-void _cairo_amigaos_debugf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-#define debugf(fmt, args...) _cairo_amigaos_debugf(fmt, ## args)
-#else
-#define debugf(fmt, ...)
-#endif
+	device = malloc(sizeof(*device));
 
-#endif /* CAIRO_AMIGAOS_PRIVATE_H */
+	_cairo_device_init(&device->base, &_cairo_amigaos_device_backend);
+
+	device->compositor = _cairo_amigaos_compositor_get();
+
+	if (_cairo_atomic_ptr_cmpxchg((void **)&__cairo_amigaos_device, NULL, device))
+		return cairo_device_reference(&device->base);
+
+	_cairo_amigaos_device_destroy(device);
+	return cairo_device_reference(__cairo_amigaos_device);
+}
+
