@@ -74,6 +74,11 @@ _cairo_boilerplate_amigaos_create_surface (const char                *name,
 		TAG_END);
 
 	surface = (cairo_amigaos_surface_t *)cairo_amigaos_surface_create(bitmap);
+	if (surface->base.backend == NULL) {
+		IGraphics->FreeBitMap(bitmap);
+		return &surface->base;
+	}
+
 	surface->free_bitmap = TRUE;
 
 	*closure = NULL;

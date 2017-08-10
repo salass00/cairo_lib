@@ -31,6 +31,7 @@
 #include "cairo-default-context-private.h"
 #include "cairo-compositor-private.h"
 #include "cairo-image-surface-private.h"
+#include "cairo-image-surface-inline.h"
 
 #include <proto/graphics.h>
 
@@ -136,8 +137,15 @@ _cairo_amigaos_surface_create_similar(void            *abstract_surface,
 		BMATags_Friend,      src->bitmap,
 		BMATags_PixelFormat, pixfmt,
 		TAG_END);
+	if (bitmap == NULL)
+		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	surface = (cairo_amigaos_surface_t *)cairo_amigaos_surface_create(bitmap);
+	if (unlikely (surface->base.backend == NULL)) {
+		IGraphics->FreeBitMap(bitmap);
+		return &surface->base;
+	}
+
 	surface->free_bitmap = TRUE;
 
 	return &surface->base;
@@ -152,7 +160,7 @@ _cairo_amigaos_surface_create_similar_image (void           *abstract_surface,
 	debugf("_cairo_amigaos_surface_create_similiar_image(%p, (int)%d, %d, %d)\n",
 	        abstract_surface, format, width, height);
 
-	return NULL;
+	return _cairo_surface_create_in_error(_cairo_error(CAIRO_INT_STATUS_UNSUPPORTED));
 }
 
 static cairo_image_surface_t *
@@ -207,6 +215,14 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 			image = (cairo_image_surface_t *)cairo_image_surface_create_for_data(data, format,
 			                                                                     width, height,
 			                                                                     stride);
+			if (unlikely (image->base.backend == NULL)) {
+				IGraphics->UnlockBitMap(surface->map_lock);
+				surface->map_lock   = NULL;
+
+				surface->map_pixfmt = PIXF_NONE;
+				surface->map_image  = NULL;
+				return image;
+			}
 
 			surface->map_pixfmt = pixfmt;
 			surface->map_image  = image;
@@ -248,6 +264,11 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 
 	stride = width * bpp;
 	data   = (uint8_t *)malloc(height * stride);
+	if (data == NULL) {
+		surface->map_pixfmt = PIXF_NONE;
+		surface->map_image  = NULL;
+		return _cairo_image_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
+	}
 
 	IGraphics->ReadPixelArray(surface->rastport, surface->xoff + x, surface->yoff + y,
 	                          data, 0, 0, stride, pixfmt,
@@ -256,6 +277,12 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	image = (cairo_image_surface_t *)cairo_image_surface_create_for_data(data, format,
 	                                                                     width, height,
 	                                                                     stride);
+	if (unlikely (image->base.backend == NULL)) {
+		free(data);
+		surface->map_pixfmt = PIXF_NONE;
+		surface->map_image  = NULL;
+		return image;
+	}
 
 	surface->map_pixfmt = pixfmt;
 	surface->map_image  = image;
@@ -463,11 +490,18 @@ cairo_amigaos_surface_create (struct BitMap *bitmap)
 	height = IGraphics->GetBitMapAttr(bitmap, BMA_HEIGHT);
 
 	rastport = (struct RastPort *)malloc(sizeof(struct RastPort));
+	if (rastport == NULL)
+		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	IGraphics->InitRastPort(rastport);
 	rastport->BitMap = bitmap;
 
 	surface = (cairo_amigaos_surface_t *)cairo_amigaos_surface_create_from_rastport(rastport, 0, 0, width, height);
+	if (unlikely (surface->base.backend == NULL)) {
+		free(rastport);
+		return &surface->base;
+	}
+
 	surface->free_rastport = TRUE;
 
 	return &surface->base;
@@ -490,6 +524,8 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	bitmap = rastport->BitMap;
 
 	surface = (cairo_amigaos_surface_t *)malloc(sizeof(cairo_amigaos_surface_t));
+	if (surface == NULL)
+		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	surface->rastport      = rastport;
 	surface->bitmap        = bitmap;
@@ -501,8 +537,9 @@ cairo_amigaos_surface_create_from_rastport (struct RastPort *rastport,
 	surface->width  = width;
 	surface->height = height;
 
-	surface->map_lock  = NULL;
-	surface->map_image = NULL;
+	surface->map_lock   = NULL;
+	surface->map_pixfmt = PIXF_NONE;
+	surface->map_image  = NULL;
 
 	pixfmt = IGraphics->GetBitMapAttr(bitmap, BMA_PIXELFORMAT);
 
