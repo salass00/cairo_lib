@@ -155,7 +155,7 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	int                      x, y, width, height;
 	uint32                   pixfmt;
 	cairo_format_t           format;
-	int                      bpp, stride;
+	uint32                   bpp, stride;
 	uint8_t                 *data;
 	cairo_image_surface_t   *image;
 
@@ -183,7 +183,7 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	format = _amigaos_pixel_format_to_cairo_format(pixfmt);
 
 	if (format != CAIRO_FORMAT_INVALID) {
-		uint32 onboard;
+		BOOL onboard = FALSE;
 
 		surface->map_lock = IGraphics->LockBitMapTags(surface->bitmap,
 		                                              LBM_BaseAddress, &data,
