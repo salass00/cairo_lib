@@ -467,12 +467,12 @@ _cairo_amigaos_font_face_scaled_font_create (void                        *abstra
 	debugf("xscale: %f yscale: %f xspace: %f\n", xscale, yscale, font->xspace);
 
 	switch(options->antialias) {
-		case CAIRO_ANTIALIAS_DEFAULT:
 		case CAIRO_ANTIALIAS_NONE:
 			debugf("Antialiasing disabled\n");
 			font->antialias = FALSE;
 			break;
 
+		case CAIRO_ANTIALIAS_DEFAULT:
 		case CAIRO_ANTIALIAS_GRAY:
 		case CAIRO_ANTIALIAS_SUBPIXEL:
 		case CAIRO_ANTIALIAS_FAST:
