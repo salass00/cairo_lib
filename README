@@ -1,9 +1,9 @@
-A work in progress AmigaOS port of cairo with a native AmigaOS surface backend
-and hopefully, eventually also a native font backend.
+A work in progress AmigaOS port of cairo with native surface and font
+backends.
 
 Currently only a static library is built, but a real shared library (not a
 shared object) might be considered once the native backends are reasonably
-finished.
+finished and stable.
 
 For a shared library version of pixman go to:
 
