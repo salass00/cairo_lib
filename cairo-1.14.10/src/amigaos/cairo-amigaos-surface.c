@@ -144,7 +144,7 @@ _cairo_amigaos_surface_create_similar_image (void           *abstract_surface,
 	debugf("_cairo_amigaos_surface_create_similiar_image(%p, (int)%d, %d, %d)\n",
 	        abstract_surface, format, width, height);
 
-	return _cairo_surface_create_in_error(_cairo_error(CAIRO_INT_STATUS_UNSUPPORTED));
+	return cairo_image_surface_create(format, width, height);
 }
 
 static cairo_image_surface_t *
