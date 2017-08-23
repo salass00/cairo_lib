@@ -30,10 +30,13 @@
 #include "cairo-amigaos-private.h"
 #include "cairo-clip-inline.h"
 #include "cairo-compositor-private.h"
+#include "cairo-tristrip-private.h"
 
 #include <graphics/composite.h>
 #include <proto/graphics.h>
 #include <proto/layers.h>
+
+#define COMPOSITE_Invalid (~0UL)
 
 #define ARGB(a, r, g, b) (((uint32_t)(a) << 24) | ((uint32_t)(r) << 16) | ((uint32_t)(g) << 8) | (uint32_t)(b))
 
@@ -60,9 +63,9 @@ struct clipped_composite_data {
 };
 
 static void
-clipped_composite_func(struct Hook            *hook,
-                       struct RastPort        *rp,
-                       struct BackFillMessage *bfm)
+clipped_composite_func (struct Hook            *hook,
+                        struct RastPort        *rp,
+                        struct BackFillMessage *bfm)
 {
 	struct clipped_composite_data *ccd = hook->h_Data;
 
@@ -78,11 +81,11 @@ clipped_composite_func(struct Hook            *hook,
 }
 
 static uint32
-CompositeRastPortTagList(uint32                  op,
-                         struct BitMap          *src_bm,
-                         struct RastPort        *dst_rp,
-                         const struct Rectangle *bounds,
-                         const struct TagItem   *tags)
+CompositeRastPortTagList (uint32                  op,
+                          struct BitMap          *src_bm,
+                          struct RastPort        *dst_rp,
+                          const struct Rectangle *bounds,
+                          const struct TagItem   *tags)
 {
 	uint32 error;
 
@@ -109,11 +112,11 @@ CompositeRastPortTagList(uint32                  op,
 }
 
 static VARARGS68K uint32
-CompositeRastPortTags(uint32                  op,
-                      struct BitMap          *src_bm,
-                      struct RastPort        *dst_rp,
-                      const struct Rectangle *bounds,
-                      ...)
+CompositeRastPortTags (uint32                  op,
+                       struct BitMap          *src_bm,
+                       struct RastPort        *dst_rp,
+                       const struct Rectangle *bounds,
+                       ...)
 {
 	uint32  error;
 	va_list tags;
@@ -126,70 +129,140 @@ CompositeRastPortTags(uint32                  op,
 	return error;
 }
 
-static cairo_bool_t
-fill_box (cairo_box_t *box, void *user_data)
+static uint32
+convert_operator_to_amigaos (cairo_operator_t op)
 {
-	cairo_amigaos_surface_t *dst = user_data;
-	int                      x1, y1, x2, y2;
+	uint32 amigaos_op;
 
-	x1 = _cairo_fixed_integer_part(box->p1.x);
-	y1 = _cairo_fixed_integer_part(box->p1.y);
-	x2 = _cairo_fixed_integer_part(box->p2.x);
-	y2 = _cairo_fixed_integer_part(box->p2.y);
+	switch (op) {
+		case CAIRO_OPERATOR_SOURCE:
+			amigaos_op = COMPOSITE_Src;
+			break;
 
-	IGraphics->RectFill(dst->rastport, x1, y1, x2, y2);
+		case CAIRO_OPERATOR_OVER:
+			amigaos_op = COMPOSITE_Src_Over_Dest;
+			break;
 
-	return TRUE;
+		case CAIRO_OPERATOR_CLEAR:
+		case CAIRO_OPERATOR_IN:
+		case CAIRO_OPERATOR_OUT:
+		case CAIRO_OPERATOR_ATOP:
+		case CAIRO_OPERATOR_DEST:
+		case CAIRO_OPERATOR_DEST_OVER:
+		case CAIRO_OPERATOR_DEST_IN:
+		case CAIRO_OPERATOR_DEST_OUT:
+		case CAIRO_OPERATOR_DEST_ATOP:
+		case CAIRO_OPERATOR_XOR:
+		case CAIRO_OPERATOR_ADD:
+		case CAIRO_OPERATOR_SATURATE:
+		case CAIRO_OPERATOR_MULTIPLY:
+		case CAIRO_OPERATOR_SCREEN:
+		case CAIRO_OPERATOR_OVERLAY:
+		case CAIRO_OPERATOR_DARKEN:
+		case CAIRO_OPERATOR_LIGHTEN:
+		case CAIRO_OPERATOR_COLOR_DODGE:
+		case CAIRO_OPERATOR_COLOR_BURN:
+		case CAIRO_OPERATOR_HARD_LIGHT:
+		case CAIRO_OPERATOR_SOFT_LIGHT:
+		case CAIRO_OPERATOR_DIFFERENCE:
+		case CAIRO_OPERATOR_EXCLUSION:
+		case CAIRO_OPERATOR_HSL_HUE:
+		case CAIRO_OPERATOR_HSL_SATURATION:
+		case CAIRO_OPERATOR_HSL_COLOR:
+		case CAIRO_OPERATOR_HSL_LUMINOSITY:
+		default:
+			amigaos_op = COMPOSITE_Invalid;
+			break;
+	}
+
+	return amigaos_op;
 }
 
-static cairo_int_status_t
-fill_boxes (cairo_amigaos_surface_t *dst,
-            const cairo_pattern_t   *src,
-            cairo_boxes_t           *boxes)
+static cairo_surface_t *
+pattern_to_amigaos_surface (const cairo_pattern_t *pattern)
 {
-	const cairo_color_t *color  = &((cairo_solid_pattern_t *)src)->color;
-	cairo_int_status_t   status = CAIRO_INT_STATUS_UNSUPPORTED;
+	struct BitMap           *bitmap;
+	cairo_amigaos_surface_t *surface;
 
-	IGraphics->SetRPAttrs(dst->rastport,
-	                      RPTAG_APenColor, ARGB(0xff, color->red_short >> 8, color->green_short >> 8, color->blue_short >> 8),
-	                      TAG_END);
+	switch (pattern->type) {
+		case CAIRO_PATTERN_TYPE_SOLID:
+		{
+			cairo_color_t *color = &((cairo_solid_pattern_t *)pattern)->color;
+			uint32         argb;
 
-	if (likely (_cairo_boxes_for_each_box(boxes, fill_box, dst)))
-		status = CAIRO_STATUS_SUCCESS;
+			bitmap = IGraphics->AllocBitMapTags(1, 1, 24,
+				BMATags_PixelFormat, PIXF_A8R8G8B8,
+				TAG_END);
+			if (bitmap == NULL)
+				return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
-	return status;
+			surface = (cairo_amigaos_surface_t *)cairo_amigaos_surface_create(bitmap);
+			if (unlikely (surface->base.backend == NULL)) {
+				IGraphics->FreeBitMap(bitmap);
+				return &surface->base;
+			}
+
+			surface->free_bitmap = TRUE;
+
+			argb = ARGB(color->alpha_short >> 8, color->red * 255, color->green * 255, color->blue * 255);
+
+			IGraphics->WritePixelColor(surface->rastport, 0, 0, argb);
+
+			return &surface->base;
+		}
+
+		case CAIRO_PATTERN_TYPE_SURFACE:
+		{
+			cairo_surface_t *surface = ((cairo_surface_pattern_t *)pattern)->surface;
+
+			if (surface->type != CAIRO_SURFACE_TYPE_AMIGAOS)
+				return _cairo_int_surface_create_in_error(CAIRO_INT_STATUS_UNSUPPORTED);
+
+			cairo_surface_reference(surface);
+
+			return surface;
+		}
+
+		case CAIRO_PATTERN_TYPE_LINEAR:
+		case CAIRO_PATTERN_TYPE_RADIAL:
+		case CAIRO_PATTERN_TYPE_MESH:
+		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
+		default:
+			return _cairo_int_surface_create_in_error(CAIRO_INT_STATUS_UNSUPPORTED);
+	}
 }
 
-struct alpha_box {
-	struct BitMap           *src_bm;
+struct composite_data {
+	uint32                   op;
+	cairo_amigaos_surface_t *src;
 	cairo_amigaos_surface_t *dst;
 	uint32                   alpha;
 };
 
 static cairo_bool_t
-alpha_box (cairo_box_t *box, void *user_data)
+composite_box (cairo_box_t *box, void *user_data)
 {
-	struct alpha_box *ab = user_data;
-	int               x1, y1, x2, y2;
-	struct Rectangle  rect;
-	my_vertex_t       vertices[4];
-	uint16            indices[6];
-	uint32            error;
+	struct composite_data *cd = user_data;
+	float                  x1, y1, x2, y2;
+	struct Rectangle       bounds;
+	my_vertex_t            vertices[4];
+	uint16                 indices[6];
+	uint32                 error;
 
-	x1 = _cairo_fixed_integer_part(box->p1.x);
-	y1 = _cairo_fixed_integer_part(box->p1.y);
-	x2 = _cairo_fixed_integer_part(box->p2.x);
-	y2 = _cairo_fixed_integer_part(box->p2.y);
+	x1 = _cairo_fixed_to_double(box->p1.x);
+	y1 = _cairo_fixed_to_double(box->p1.y);
+	x2 = _cairo_fixed_to_double(box->p2.x);
+	y2 = _cairo_fixed_to_double(box->p2.y);
 
-	rect.MinX = ab->dst->xoff + x1;
-	rect.MinY = ab->dst->yoff + y1;
-	rect.MaxX = ab->dst->xoff + x2;
-	rect.MaxY = ab->dst->yoff + y2;
+	bounds.MinX = cd->dst->xoff + floorf(x1);
+	bounds.MinY = cd->dst->yoff + floorf(y1);
+	bounds.MaxX = cd->dst->xoff + ceilf(x2);
+	bounds.MaxY = cd->dst->yoff + ceilf(y2);
 
-	vertices[0] = VERTEX(x1, y1, 0, 0, 0);
-	vertices[1] = VERTEX(x2, y1, 0, 0, 0);
-	vertices[2] = VERTEX(x1, y2, 0, 0, 0);
-	vertices[3] = VERTEX(x2, y2, 0, 0, 0);
+	vertices[0] = VERTEX(x1, y1, 0, 0, 1);
+	vertices[1] = VERTEX(x2, y1, 0, 0, 1);
+	vertices[2] = VERTEX(x1, y2, 0, 0, 1);
+	vertices[3] = VERTEX(x2, y2, 0, 0, 1);
 
 	indices[0] = 0;
 	indices[1] = 1;
@@ -198,13 +271,13 @@ alpha_box (cairo_box_t *box, void *user_data)
 	indices[4] = 1;
 	indices[5] = 3;
 
-	error = CompositeRastPortTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst->rastport, &rect,
+	error = CompositeRastPortTags(cd->op, cd->src->bitmap, cd->dst->rastport, &bounds,
 		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
 		COMPTAG_IndexArray,   indices,
 		COMPTAG_VertexArray,  vertices,
 		COMPTAG_VertexFormat, COMPVF_STW0_Present,
 		COMPTAG_NumTriangles, 2,
-		COMPTAG_SrcAlpha,     ab->alpha,
+		COMPTAG_SrcAlpha,     cd->alpha,
 		TAG_END);
 
 	if (unlikely (error != COMPERR_Success))
@@ -214,102 +287,169 @@ alpha_box (cairo_box_t *box, void *user_data)
 }
 
 static cairo_int_status_t
-alpha_blend_boxes (cairo_amigaos_surface_t *dst,
-                   const cairo_pattern_t   *src,
-                   cairo_boxes_t           *boxes,
-                   uint8_t                  alpha)
+composite_boxes (cairo_composite_rectangles_t *extents,
+                 cairo_boxes_t                *boxes)
 {
-	const cairo_color_t *color  = &((cairo_solid_pattern_t *)src)->color;
-	cairo_int_status_t   status = CAIRO_INT_STATUS_UNSUPPORTED;
-	struct BitMap       *temp_bm;
-	uint32_t            *bm_addr;
-	APTR                 bm_lock;
-	struct alpha_box     ab;
+	cairo_int_status_t       status = CAIRO_INT_STATUS_UNSUPPORTED;
+	uint32                   op;
+	cairo_amigaos_surface_t *dst;
+	const cairo_pattern_t   *src_pattern;
+	cairo_amigaos_surface_t *src;
+	struct composite_data    cd;
 
-	temp_bm = IGraphics->AllocBitMapTags(1, 1, 24,
-		BMATags_Friend,      dst->bitmap,
-		BMATags_PixelFormat, PIXF_A8R8G8B8,
-		TAG_END);
-	if (temp_bm == NULL)
+	op = convert_operator_to_amigaos(extents->op);
+	if (op == COMPOSITE_Invalid)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	bm_lock = IGraphics->LockBitMapTags(temp_bm,
-		LBM_BaseAddress, &bm_addr,
-		TAG_END);
+	dst = (cairo_amigaos_surface_t *)extents->surface;
 
-	/* We don't use the short values here because they have the alpha premultiplied. */
-	*bm_addr = ARGB(color->alpha_short >> 8, color->red * 255, color->green * 255, color->blue * 255);
+	src_pattern = &extents->source_pattern.base;
+	if (src_pattern->type != CAIRO_PATTERN_TYPE_SOLID)
+		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	IGraphics->UnlockBitMap(bm_lock);
+	src = (cairo_amigaos_surface_t *)pattern_to_amigaos_surface(src_pattern);
+	if (src->base.backend == NULL)
+		return src->base.status;
 
-	ab.src_bm = temp_bm;
-	ab.dst    = dst;
-	ab.alpha  = (alpha * 0x10000UL) / 255;
+	cd.op    = op;
+	cd.src   = src;
+	cd.dst   = dst;
+	cd.alpha = COMP_FIX_ONE;
 
-	if (likely (_cairo_boxes_for_each_box(boxes, alpha_box, &ab)))
+	if (likely (_cairo_boxes_for_each_box(boxes, composite_box, &cd)))
 		status = CAIRO_STATUS_SUCCESS;
 
-	IGraphics->FreeBitMap(temp_bm);
+	cairo_surface_destroy(&src->base);
 
 	return status;
 }
 
 static cairo_int_status_t
-draw_boxes (cairo_composite_rectangles_t *extents,
-            cairo_boxes_t                *boxes)
+composite_boxes_with_mask (cairo_composite_rectangles_t *extents,
+                           cairo_boxes_t                *boxes)
 {
-	cairo_operator_t         op  = extents->op;
-	cairo_amigaos_surface_t *dst = (cairo_amigaos_surface_t *)extents->surface;
-	const cairo_pattern_t   *src = &extents->source_pattern.base;
+	cairo_int_status_t       status = CAIRO_INT_STATUS_UNSUPPORTED;
+	uint32                   op;
+	cairo_amigaos_surface_t *dst;
+	const cairo_pattern_t   *src_pattern;
+	const cairo_pattern_t   *mask_pattern;
+	cairo_amigaos_surface_t *src;
+	struct composite_data    cd;
 
-	if (boxes->num_boxes == 0 && extents->is_bounded)
-		return CAIRO_STATUS_SUCCESS;
-
-	if (!boxes->is_pixel_aligned)
+	op = convert_operator_to_amigaos(extents->op);
+	if (op == COMPOSITE_Invalid)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if (op == CAIRO_OPERATOR_CLEAR)
-		op = CAIRO_OPERATOR_SOURCE;
+	dst = (cairo_amigaos_surface_t *)extents->surface;
 
-	if (op == CAIRO_OPERATOR_OVER &&
-	    _cairo_pattern_is_opaque(src, &extents->bounded))
-		op = CAIRO_OPERATOR_SOURCE;
-
-	if (dst->base.is_clear &&
-	    (op == CAIRO_OPERATOR_OVER || op == CAIRO_OPERATOR_ADD))
-		op = CAIRO_OPERATOR_SOURCE;
-
-	if (src->type != CAIRO_PATTERN_TYPE_SOLID)
+	src_pattern = &extents->source_pattern.base;
+	if (src_pattern->type != CAIRO_PATTERN_TYPE_SOLID)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if (op == CAIRO_OPERATOR_SOURCE)
-		return fill_boxes(dst, src, boxes);
+	mask_pattern = &extents->mask_pattern.base;
+	if (mask_pattern->type != CAIRO_PATTERN_TYPE_SOLID)
+		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if (op == CAIRO_OPERATOR_OVER)
-		return alpha_blend_boxes(dst, src, boxes, 255);
+	src = (cairo_amigaos_surface_t *)pattern_to_amigaos_surface(src_pattern);
+	if (src->base.backend == NULL)
+		return src->base.status;
 
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+	cd.op    = op;
+	cd.src   = src;
+	cd.dst   = dst;
+	cd.alpha = COMP_FLOAT_TO_FIX(((cairo_solid_pattern_t *)mask_pattern)->color.alpha);
+
+	if (likely (_cairo_boxes_for_each_box(boxes, composite_box, &cd)))
+		status = CAIRO_STATUS_SUCCESS;
+
+	cairo_surface_destroy(&src->base);
+
+	return status;
 }
 
 static cairo_int_status_t
-opacity_boxes (cairo_composite_rectangles_t *extents,
-               cairo_boxes_t                *boxes)
+composite_tristrip (cairo_composite_rectangles_t *extents,
+                    cairo_tristrip_t             *strip,
+                    cairo_antialias_t             antialias)
 {
-	cairo_operator_t         op  = extents->op;
-	cairo_amigaos_surface_t *dst = (cairo_amigaos_surface_t *)extents->surface;
-	const cairo_pattern_t   *src = &extents->source_pattern.base;
+	cairo_int_status_t       status = CAIRO_INT_STATUS_UNSUPPORTED;
+	uint32                   op;
+	cairo_amigaos_surface_t *dst;
+	const cairo_pattern_t   *src_pattern;
+	cairo_amigaos_surface_t *src;
+	float                    x, y;
+	my_vertex_t             *vertices;
+	uint16                  *indices;
+	int                      num_vertices, num_triangles;
+	int                      i, j;
+	struct Rectangle         bounds;
+	uint32                   error;
 
-	if (extents->mask_pattern.base.type != CAIRO_PATTERN_TYPE_SOLID)
+	op = convert_operator_to_amigaos(extents->op);
+	if (op == COMPOSITE_Invalid)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if (!boxes->is_pixel_aligned)
+	dst = (cairo_amigaos_surface_t *)extents->surface;
+
+	src_pattern = &extents->source_pattern.base;
+	if (src_pattern->type != CAIRO_PATTERN_TYPE_SOLID)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if (op != CAIRO_OPERATOR_OVER)
+	num_vertices = strip->num_points;
+	if (num_vertices < 3)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	return alpha_blend_boxes(dst, src, boxes,
-	                         extents->mask_pattern.solid.color.alpha_short >> 8);
+	src = (cairo_amigaos_surface_t *)pattern_to_amigaos_surface(src_pattern);
+	if (src->base.backend == NULL)
+		return src->base.status;
+
+	num_triangles = num_vertices - 2;
+
+	vertices = malloc(sizeof(my_vertex_t) * num_vertices);
+	indices  = malloc(sizeof(uint16) * 3 * num_triangles);
+
+	bounds.MinX = dst->xoff;
+	bounds.MinY = dst->yoff;
+	bounds.MaxX = dst->xoff + dst->width - 1;
+	bounds.MaxY = dst->yoff + dst->height - 1;
+
+	for (i = 0; i < num_vertices; i++) {
+		x = _cairo_fixed_to_double(strip->points[i].x);
+		y = _cairo_fixed_to_double(strip->points[i].y);
+
+		vertices[i] = VERTEX(x, y, 0, 0, 1);
+	}
+
+	for (i = 0; i < num_triangles; i++) {
+		j = i * 3;
+		if ((i & 1) == 0) {
+			indices[j + 0] = i + 0;
+			indices[j + 1] = i + 1;
+			indices[j + 2] = i + 2;
+		} else {
+			indices[j + 0] = i + 1;
+			indices[j + 1] = i + 0;
+			indices[j + 2] = i + 2;
+		}
+	}
+
+	error = CompositeRastPortTags(op, src->bitmap, dst->rastport, &bounds,
+		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
+		COMPTAG_IndexArray,   indices,
+		COMPTAG_VertexArray,  vertices,
+		COMPTAG_VertexFormat, COMPVF_STW0_Present,
+		COMPTAG_NumTriangles, num_triangles,
+		TAG_END);
+
+	if (likely (error == COMPERR_Success))
+		status = CAIRO_STATUS_SUCCESS;
+
+	free(vertices);
+	free(indices);
+
+	cairo_surface_destroy(&src->base);
+
+	return status;
 }
 
 static cairo_int_status_t
@@ -320,7 +460,7 @@ _cairo_amigaos_compositor_paint (const cairo_compositor_t     *_compositor,
 	cairo_boxes_t      boxes;
 
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
-	status = draw_boxes (extents, &boxes);
+	status = composite_boxes (extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
 
 	return status;
@@ -334,7 +474,7 @@ _cairo_amigaos_compositor_mask (const cairo_compositor_t     *_compositor,
 	cairo_boxes_t      boxes;
 
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
-	status = opacity_boxes (extents, &boxes);
+	status = composite_boxes_with_mask (extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
 
 	return status;
@@ -362,8 +502,21 @@ _cairo_amigaos_compositor_stroke (const cairo_compositor_t     *_compositor,
 		                                                       antialias,
 		                                                       &boxes);
 		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
-			status = draw_boxes(extents, &boxes);
+			status = composite_boxes(extents, &boxes);
 		_cairo_boxes_fini(&boxes);
+	} else if (_cairo_clip_is_region(extents->clip)) {
+		cairo_tristrip_t strip;
+
+		_cairo_tristrip_init_with_clip(&strip, extents->clip);
+		status = _cairo_path_fixed_stroke_to_tristrip(path,
+		                                              style,
+		                                              ctm,
+		                                              ctm_inverse,
+		                                              tolerance,
+		                                              &strip);
+		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
+			status = composite_tristrip(extents, &strip, antialias);
+		_cairo_tristrip_fini (&strip);
 	}
 
 	return status;
@@ -388,7 +541,7 @@ _cairo_amigaos_compositor_fill (const cairo_compositor_t     *_compositor,
 		                                                     antialias,
 		                                                     &boxes);
 		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
-			status = draw_boxes(extents, &boxes);
+			status = composite_boxes(extents, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}
 
@@ -403,9 +556,7 @@ _cairo_amigaos_compositor_glyphs (const cairo_compositor_t     *_compositor,
                                   int                           num_glyphs,
                                   cairo_bool_t                  overlap)
 {
-	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
-
-	return status;
+	return CAIRO_INT_STATUS_UNSUPPORTED;
 }
 
 const cairo_compositor_t *
