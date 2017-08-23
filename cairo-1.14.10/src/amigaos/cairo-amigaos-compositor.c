@@ -37,45 +37,6 @@
 
 #define ARGB(a, r, g, b) (((uint32_t)(a) << 24) | ((uint32_t)(r) << 16) | ((uint32_t)(g) << 8) | (uint32_t)(b))
 
-static cairo_bool_t
-fill_box (cairo_box_t *box, void *user_data)
-{
-	cairo_amigaos_surface_t *dst = user_data;
-	int x1, y1, x2, y2;
-
-	x1 = _cairo_fixed_integer_part(box->p1.x);
-	y1 = _cairo_fixed_integer_part(box->p1.y);
-	x2 = _cairo_fixed_integer_part(box->p2.x);
-	y2 = _cairo_fixed_integer_part(box->p2.y);
-
-	IGraphics->RectFill(dst->rastport, x1, y1, x2, y2);
-
-	return TRUE;
-}
-
-static uint32_t color_to_rgb(const cairo_color_t *c)
-{
-	return ARGB(0xff, c->red_short >> 8, c->green_short >> 8, c->blue_short >> 8);
-}
-
-static cairo_int_status_t
-fill_boxes (cairo_amigaos_surface_t *dst,
-            const cairo_pattern_t   *src,
-            cairo_boxes_t           *boxes)
-{
-	const cairo_color_t *color = &((cairo_solid_pattern_t *)src)->color;
-	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
-
-	IGraphics->SetRPAttrs(dst->rastport,
-	                      RPTAG_APenColor, color_to_rgb(color),
-	                      TAG_END);
-
-	if (likely (_cairo_boxes_for_each_box(boxes, fill_box, dst)))
-		status = CAIRO_STATUS_SUCCESS;
-
-	return status;
-}
-
 typedef struct {
 	float x, y, s, t, w;
 } my_vertex_t;
@@ -91,24 +52,144 @@ typedef struct {
 		vertex; \
 	})
 
-struct alpha_box {
-	struct BitMap   *src_bm, *dst_bm;
-	struct RastPort *dst_rp;
-	uint32           alpha;
+struct clipped_composite_data {
+	uint32                op;
+	struct BitMap        *src;
+	const struct TagItem *tags;
+	uint32                error;
 };
 
-static void clip_alpha_box (struct Hook *hook, struct RastPort *rp, struct BackFillMessage *bfm)
+static void
+clipped_composite_func(struct Hook            *hook,
+                       struct RastPort        *rp,
+                       struct BackFillMessage *bfm)
 {
-	struct alpha_box *ab   = (struct alpha_box *)hook->h_Data;
-	struct Rectangle *rect = &bfm->Bounds;
+	struct clipped_composite_data *ccd = hook->h_Data;
+
+	if (unlikely (ccd->error != COMPERR_Success))
+		return;
+
+	ccd->error = IGraphics->CompositeTags(ccd->op, ccd->src, rp->BitMap,
+		COMPTAG_DestX,      bfm->Bounds.MinX,
+		COMPTAG_DestY,      bfm->Bounds.MinY,
+		COMPTAG_DestWidth,  bfm->Bounds.MaxX - bfm->Bounds.MinX + 1,
+		COMPTAG_DestHeight, bfm->Bounds.MaxY - bfm->Bounds.MinY + 1,
+		TAG_MORE,           ccd->tags);
+}
+
+static uint32
+CompositeRastPortTagList(uint32                  op,
+                         struct BitMap          *src_bm,
+                         struct RastPort        *dst_rp,
+                         const struct Rectangle *bounds,
+                         const struct TagItem   *tags)
+{
+	uint32 error;
+
+	if (dst_rp->Layer == NULL) {
+		error = IGraphics->CompositeTagList(op, src_bm, dst_rp->BitMap, tags);
+	} else {
+		struct clipped_composite_data ccd;
+		struct Hook                   hook;
+
+		ccd.op    = op;
+		ccd.src   = src_bm;
+		ccd.tags  = tags;
+		ccd.error = COMPERR_Success;
+
+		hook.h_Entry = (HOOKFUNC)clipped_composite_func;
+		hook.h_Data  = &ccd;
+
+		ILayers->DoHookClipRects(&hook, dst_rp, bounds);
+
+		error = ccd.error;
+	}
+
+	return error;
+}
+
+static VARARGS68K uint32
+CompositeRastPortTags(uint32                  op,
+                      struct BitMap          *src_bm,
+                      struct RastPort        *dst_rp,
+                      const struct Rectangle *bounds,
+                      ...)
+{
+	uint32  error;
+	va_list tags;
+
+	va_startlinear(tags, bounds);
+	error = CompositeRastPortTagList(op, src_bm, dst_rp, bounds,
+	                                 va_getlinearva(tags, const struct TagItem *));
+	va_end(tags);
+
+	return error;
+}
+
+static cairo_bool_t
+fill_box (cairo_box_t *box, void *user_data)
+{
+	cairo_amigaos_surface_t *dst = user_data;
+	int                      x1, y1, x2, y2;
+
+	x1 = _cairo_fixed_integer_part(box->p1.x);
+	y1 = _cairo_fixed_integer_part(box->p1.y);
+	x2 = _cairo_fixed_integer_part(box->p2.x);
+	y2 = _cairo_fixed_integer_part(box->p2.y);
+
+	IGraphics->RectFill(dst->rastport, x1, y1, x2, y2);
+
+	return TRUE;
+}
+
+static cairo_int_status_t
+fill_boxes (cairo_amigaos_surface_t *dst,
+            const cairo_pattern_t   *src,
+            cairo_boxes_t           *boxes)
+{
+	const cairo_color_t *color  = &((cairo_solid_pattern_t *)src)->color;
+	cairo_int_status_t   status = CAIRO_INT_STATUS_UNSUPPORTED;
+
+	IGraphics->SetRPAttrs(dst->rastport,
+	                      RPTAG_APenColor, ARGB(0xff, color->red_short >> 8, color->green_short >> 8, color->blue_short >> 8),
+	                      TAG_END);
+
+	if (likely (_cairo_boxes_for_each_box(boxes, fill_box, dst)))
+		status = CAIRO_STATUS_SUCCESS;
+
+	return status;
+}
+
+struct alpha_box {
+	struct BitMap           *src_bm;
+	cairo_amigaos_surface_t *dst;
+	uint32                   alpha;
+};
+
+static cairo_bool_t
+alpha_box (cairo_box_t *box, void *user_data)
+{
+	struct alpha_box *ab = user_data;
+	int               x1, y1, x2, y2;
+	struct Rectangle  rect;
 	my_vertex_t       vertices[4];
 	uint16            indices[6];
 	uint32            error;
 
-	vertices[0] = VERTEX(rect->MinX, rect->MinY, 0, 0, 0);
-	vertices[1] = VERTEX(rect->MaxX, rect->MinY, 0, 0, 0);
-	vertices[2] = VERTEX(rect->MinX, rect->MaxY, 0, 0, 0);
-	vertices[3] = VERTEX(rect->MaxX, rect->MaxY, 0, 0, 0);
+	x1 = _cairo_fixed_integer_part(box->p1.x);
+	y1 = _cairo_fixed_integer_part(box->p1.y);
+	x2 = _cairo_fixed_integer_part(box->p2.x);
+	y2 = _cairo_fixed_integer_part(box->p2.y);
+
+	rect.MinX = ab->dst->xoff + x1;
+	rect.MinY = ab->dst->yoff + y1;
+	rect.MaxX = ab->dst->xoff + x2;
+	rect.MaxY = ab->dst->yoff + y2;
+
+	vertices[0] = VERTEX(x1, y1, 0, 0, 0);
+	vertices[1] = VERTEX(x2, y1, 0, 0, 0);
+	vertices[2] = VERTEX(x1, y2, 0, 0, 0);
+	vertices[3] = VERTEX(x2, y2, 0, 0, 0);
 
 	indices[0] = 0;
 	indices[1] = 1;
@@ -117,7 +198,7 @@ static void clip_alpha_box (struct Hook *hook, struct RastPort *rp, struct BackF
 	indices[4] = 1;
 	indices[5] = 3;
 
-	error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst_bm,
+	error = CompositeRastPortTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst->rastport, &rect,
 		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
 		COMPTAG_IndexArray,   indices,
 		COMPTAG_VertexArray,  vertices,
@@ -125,60 +206,9 @@ static void clip_alpha_box (struct Hook *hook, struct RastPort *rp, struct BackF
 		COMPTAG_NumTriangles, 2,
 		COMPTAG_SrcAlpha,     ab->alpha,
 		TAG_END);
-}
 
-static cairo_bool_t alpha_box (cairo_box_t *box, void *user_data)
-{
-	struct alpha_box *ab = user_data;
-	int               x1, y1, x2, y2;
-
-	x1 = _cairo_fixed_integer_part(box->p1.x);
-	y1 = _cairo_fixed_integer_part(box->p1.y);
-	x2 = _cairo_fixed_integer_part(box->p2.x);
-	y2 = _cairo_fixed_integer_part(box->p2.y);
-
-	if (ab->dst_rp->Layer == NULL) {
-		my_vertex_t vertices[4];
-		uint16      indices[6];
-		uint32      error;
-
-		vertices[0] = VERTEX(x1, y1, 0, 0, 0);
-		vertices[1] = VERTEX(x2, y1, 0, 0, 0);
-		vertices[2] = VERTEX(x1, y2, 0, 0, 0);
-		vertices[3] = VERTEX(x2, y2, 0, 0, 0);
-
-		indices[0] = 0;
-		indices[1] = 1;
-		indices[2] = 2;
-		indices[3] = 2;
-		indices[4] = 1;
-		indices[5] = 3;
-
-		error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst_bm,
-			COMPTAG_Flags,        COMPFLAG_HardwareOnly,
-			COMPTAG_IndexArray,   indices,
-			COMPTAG_VertexArray,  vertices,
-			COMPTAG_VertexFormat, COMPVF_STW0_Present,
-			COMPTAG_NumTriangles, 2,
-			COMPTAG_SrcAlpha,     ab->alpha,
-			TAG_END);
-
-		if (unlikely (error != COMPERR_Success))
-			return FALSE;
-	} else {
-		struct Rectangle rect;
-		struct Hook hook;
-
-		rect.MinX = x1;
-		rect.MinY = y1;
-		rect.MaxX = x2;
-		rect.MaxY = y2;
-
-		hook.h_Entry = (HOOKFUNC)clip_alpha_box;
-		hook.h_Data  = (APTR)ab;
-
-		ILayers->DoHookClipRects(&hook, ab->dst_rp, &rect);
-	}
+	if (unlikely (error != COMPERR_Success))
+		return FALSE;
 
 	return TRUE;
 }
@@ -213,8 +243,7 @@ alpha_blend_boxes (cairo_amigaos_surface_t *dst,
 	IGraphics->UnlockBitMap(bm_lock);
 
 	ab.src_bm = temp_bm;
-	ab.dst_bm = dst->bitmap;
-	ab.dst_rp = dst->rastport;
+	ab.dst    = dst;
 	ab.alpha  = (alpha * 0x10000UL) / 255;
 
 	if (likely (_cairo_boxes_for_each_box(boxes, alpha_box, &ab)))
