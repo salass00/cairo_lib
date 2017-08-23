@@ -101,18 +101,25 @@ static void clip_alpha_box (struct Hook *hook, struct RastPort *rp, struct BackF
 {
 	struct alpha_box *ab   = (struct alpha_box *)hook->h_Data;
 	struct Rectangle *rect = &bfm->Bounds;
-	my_vertex_t       vertices[6];
+	my_vertex_t       vertices[4];
+	uint16            indices[6];
 	uint32            error;
 
-	vertices[0] = VERTEX(rect->MinX, rect->MinY, 0, 0, 1);
-	vertices[1] = VERTEX(rect->MaxX, rect->MinY, 1, 0, 1);
-	vertices[2] = VERTEX(rect->MinX, rect->MaxY, 0, 1, 1);
-	vertices[3] = VERTEX(rect->MinX, rect->MaxY, 0, 1, 1);
-	vertices[4] = VERTEX(rect->MaxX, rect->MinY, 1, 0, 1);
-	vertices[5] = VERTEX(rect->MaxX, rect->MaxY, 1, 1, 1);
+	vertices[0] = VERTEX(rect->MinX, rect->MinY, 0, 0, 0);
+	vertices[1] = VERTEX(rect->MaxX, rect->MinY, 0, 0, 0);
+	vertices[2] = VERTEX(rect->MinX, rect->MaxY, 0, 0, 0);
+	vertices[3] = VERTEX(rect->MaxX, rect->MaxY, 0, 0, 0);
+
+	indices[0] = 0;
+	indices[1] = 1;
+	indices[2] = 2;
+	indices[3] = 2;
+	indices[4] = 1;
+	indices[5] = 3;
 
 	error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst_bm,
 		COMPTAG_Flags,        COMPFLAG_HardwareOnly,
+		COMPTAG_IndexArray,   indices,
 		COMPTAG_VertexArray,  vertices,
 		COMPTAG_VertexFormat, COMPVF_STW0_Present,
 		COMPTAG_NumTriangles, 2,
@@ -131,18 +138,25 @@ static cairo_bool_t alpha_box (cairo_box_t *box, void *user_data)
 	y2 = _cairo_fixed_integer_part(box->p2.y);
 
 	if (ab->dst_rp->Layer == NULL) {
-		my_vertex_t vertices[6];
+		my_vertex_t vertices[4];
+		uint16      indices[6];
 		uint32      error;
 
-		vertices[0] = VERTEX(x1, y1, 0, 0, 1);
-		vertices[1] = VERTEX(x2, y1, 1, 0, 1);
-		vertices[2] = VERTEX(x1, y2, 0, 1, 1);
-		vertices[3] = VERTEX(x1, y2, 0, 1, 1);
-		vertices[4] = VERTEX(x2, y1, 1, 0, 1);
-		vertices[5] = VERTEX(x2, y2, 1, 1, 1);
+		vertices[0] = VERTEX(x1, y1, 0, 0, 0);
+		vertices[1] = VERTEX(x2, y1, 0, 0, 0);
+		vertices[2] = VERTEX(x1, y2, 0, 0, 0);
+		vertices[3] = VERTEX(x2, y2, 0, 0, 0);
+
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 2;
+		indices[3] = 2;
+		indices[4] = 1;
+		indices[5] = 3;
 
 		error = IGraphics->CompositeTags(COMPOSITE_Src_Over_Dest, ab->src_bm, ab->dst_bm,
 			COMPTAG_Flags,        COMPFLAG_HardwareOnly,
+			COMPTAG_IndexArray,   indices,
 			COMPTAG_VertexArray,  vertices,
 			COMPTAG_VertexFormat, COMPVF_STW0_Present,
 			COMPTAG_NumTriangles, 2,
