@@ -31,6 +31,7 @@
 #include "cairo-clip-inline.h"
 #include "cairo-compositor-private.h"
 #include "cairo-tristrip-private.h"
+#include "cairo-traps-private.h"
 
 #include <graphics/composite.h>
 #include <proto/graphics.h>
@@ -495,6 +496,13 @@ composite_tristrip (cairo_composite_rectangles_t *extents,
 }
 
 static cairo_int_status_t
+composite_traps (cairo_composite_rectangles_t *extents,
+                 cairo_traps_t                *traps)
+{
+	return CAIRO_INT_STATUS_UNSUPPORTED;
+}
+
+static cairo_int_status_t
 _cairo_amigaos_compositor_paint (const cairo_compositor_t     *_compositor,
                                  cairo_composite_rectangles_t *extents)
 {
@@ -546,7 +554,9 @@ _cairo_amigaos_compositor_stroke (const cairo_compositor_t     *_compositor,
 		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
 			status = composite_boxes(extents, &boxes);
 		_cairo_boxes_fini(&boxes);
-	} else if (_cairo_clip_is_region(extents->clip)) {
+	}
+
+	if (status == CAIRO_INT_STATUS_UNSUPPORTED && _cairo_clip_is_region(extents->clip)) {
 		cairo_tristrip_t strip;
 
 		_cairo_tristrip_init_with_clip(&strip, extents->clip);
@@ -559,6 +569,21 @@ _cairo_amigaos_compositor_stroke (const cairo_compositor_t     *_compositor,
 		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
 			status = composite_tristrip(extents, &strip);
 		_cairo_tristrip_fini (&strip);
+	}
+
+	if (status == CAIRO_INT_STATUS_UNSUPPORTED) {
+		cairo_traps_t traps;
+
+		_cairo_traps_init_with_clip(&traps, extents->clip);
+		status = _cairo_path_fixed_stroke_polygon_to_traps(path,
+		                                                   style,
+		                                                   ctm,
+		                                                   ctm_inverse,
+		                                                   tolerance,
+		                                                   &traps);
+		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
+			status = composite_traps(extents, &traps);
+		_cairo_traps_fini (&traps);
 	}
 
 	return status;
