@@ -129,6 +129,36 @@ CompositeRastPortTags (uint32                  op,
 	return error;
 }
 
+static void
+clip_and_init_bounds (const cairo_amigaos_surface_t *surface,
+                      struct Rectangle              *bounds,
+                      float                          x1,
+                      float                          y1,
+                      float                          x2,
+                      float                          y2)
+{
+	int _x1, _y1, _x2, _y2;
+
+	_x1 = (int)floorf(x1);
+	_y1 = (int)floorf(y1);
+	_x2 = (int)ceilf(x2);
+	_y2 = (int)ceilf(y2);
+
+	if (_x1 < 0)
+		_x1 = 0;
+	if (_y1 < 0)
+		_y1 = 0;
+	if (_x2 >= surface->width)
+		_x2 = surface->width - 1;
+	if (_y2 >= surface->height)
+		_y2 = surface->height - 1;
+
+	bounds->MinX = surface->xoff + _x1;
+	bounds->MinY = surface->yoff + _y1;
+	bounds->MaxX = surface->xoff + _x2;
+	bounds->MaxY = surface->yoff + _y2;
+}
+
 static uint32
 convert_operator_to_amigaos (cairo_operator_t op)
 {
@@ -254,10 +284,7 @@ composite_box (cairo_box_t *box, void *user_data)
 	x2 = _cairo_fixed_to_double(box->p2.x);
 	y2 = _cairo_fixed_to_double(box->p2.y);
 
-	bounds.MinX = cd->dst->xoff + floorf(x1);
-	bounds.MinY = cd->dst->yoff + floorf(y1);
-	bounds.MaxX = cd->dst->xoff + ceilf(x2);
-	bounds.MaxY = cd->dst->yoff + ceilf(y2);
+	clip_and_init_bounds(cd->dst, &bounds, x1, y1, x2, y2);
 
 	vertices[0] = VERTEX(x1, y1, 0, 0, 1);
 	vertices[1] = VERTEX(x2, y1, 0, 0, 1);
@@ -369,14 +396,14 @@ composite_boxes_with_mask (cairo_composite_rectangles_t *extents,
 
 static cairo_int_status_t
 composite_tristrip (cairo_composite_rectangles_t *extents,
-                    cairo_tristrip_t             *strip,
-                    cairo_antialias_t             antialias)
+                    cairo_tristrip_t             *strip)
 {
 	cairo_int_status_t       status = CAIRO_INT_STATUS_UNSUPPORTED;
 	uint32                   op;
 	cairo_amigaos_surface_t *dst;
 	const cairo_pattern_t   *src_pattern;
 	cairo_amigaos_surface_t *src;
+	float                    x1, y1, x2, y2;
 	float                    x, y;
 	my_vertex_t             *vertices;
 	uint16                  *indices;
@@ -408,17 +435,32 @@ composite_tristrip (cairo_composite_rectangles_t *extents,
 	vertices = malloc(sizeof(my_vertex_t) * num_vertices);
 	indices  = malloc(sizeof(uint16) * 3 * num_triangles);
 
-	bounds.MinX = dst->xoff;
-	bounds.MinY = dst->yoff;
-	bounds.MaxX = dst->xoff + dst->width - 1;
-	bounds.MaxY = dst->yoff + dst->height - 1;
 
-	for (i = 0; i < num_vertices; i++) {
+	x = _cairo_fixed_to_double(strip->points[0].x);
+	y = _cairo_fixed_to_double(strip->points[0].y);
+
+	x1 = x2 = x;
+	y1 = y2 = y;
+
+	vertices[0] = VERTEX(x, y, 0, 0, 1);
+
+	for (i = 1; i < num_vertices; i++) {
 		x = _cairo_fixed_to_double(strip->points[i].x);
 		y = _cairo_fixed_to_double(strip->points[i].y);
 
+		if (x < x1)
+			x1 = x;
+		else if (x > x2)
+			x2 = x;
+		if (y < y1)
+			y1 = y;
+		else if (y > y2)
+			y2 = y;
+
 		vertices[i] = VERTEX(x, y, 0, 0, 1);
 	}
+
+	clip_and_init_bounds(dst, &bounds, x1, y1, x2, y2);
 
 	for (i = 0; i < num_triangles; i++) {
 		j = i * 3;
@@ -515,7 +557,7 @@ _cairo_amigaos_compositor_stroke (const cairo_compositor_t     *_compositor,
 		                                              tolerance,
 		                                              &strip);
 		if (likely (status == CAIRO_INT_STATUS_SUCCESS))
-			status = composite_tristrip(extents, &strip, antialias);
+			status = composite_tristrip(extents, &strip);
 		_cairo_tristrip_fini (&strip);
 	}
 
