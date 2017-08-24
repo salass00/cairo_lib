@@ -162,6 +162,8 @@ _cairo_amigaos_surface_map_to_image (void                        *abstract_surfa
 	debugf("_cairo_amigaos_surface_map_to_image(%p, %p)\n",
 	       abstract_surface, extents);
 
+	assert(surface->map_image == NULL);
+
 	if (extents) {
 		x      = extents->x;
 		y      = extents->y;
@@ -286,6 +288,8 @@ _cairo_amigaos_surface_unmap_image (void                  *abstract_surface,
 
 	debugf("_cairo_amigaos_surface_unmap_image(%p, %p)\n",
 	       abstract_surface, image);
+
+	assert(image == surface->map_image);
 
 	x      = surface->map_rect.x;
 	y      = surface->map_rect.y;
