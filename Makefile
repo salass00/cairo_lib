@@ -3,9 +3,10 @@ CAIRODIR := cairo-1.14.10
 CC    := ppc-amigaos-gcc
 STRIP := ppc-amigaos-strip
 
-CFLAGS  := -O2 -g -Wall -Wwrite-strings -Werror -I/SDK/local/newlib/include/cairo
-LDFLAGS := -static
-LIBS    := -lcairo -lfreetype -lpng -lbz2 -lz -lpixman-1 -lauto
+CFLAGS     := -O2 -g -Wall -Wwrite-strings -Werror -I/SDK/local/newlib/include/cairo
+LDFLAGS    := -static
+LIBS       := -lcairo -lfreetype -lpng -lbz2 -lz -lpixman-1 -lauto
+STRIPFLAGS := -R.comment --strip-unneeded-rel-relocs
 
 BUILDSYS := $(shell uname -s)
 
@@ -35,19 +36,19 @@ build-tests: $(TESTS)
 
 tests/rectangles: tests/rectangles.o tests/support.o
 	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
-	$(STRIP) -R.comment -o $@ $@.debug
+	$(STRIP) $(STRIPFLAGS) -o $@ $@.debug
 
 tests/alpha_rectangles: tests/alpha_rectangles.o tests/support.o
 	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
-	$(STRIP) -R.comment -o $@ $@.debug
+	$(STRIP) $(STRIPFLAGS) -o $@ $@.debug
 
 tests/lines: tests/lines.o tests/support.o
 	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
-	$(STRIP) -R.comment -o $@ $@.debug
+	$(STRIP) $(STRIPFLAGS) -o $@ $@.debug
 
 tests/text: tests/text.o tests/support.o
 	$(CC) $(LDFLAGS) -o $@.debug $^ $(LIBS)
-	$(STRIP) -R.comment -o $@ $@.debug
+	$(STRIP) $(STRIPFLAGS) -o $@ $@.debug
 
 .PHONY: clean
 clean:
