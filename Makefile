@@ -25,7 +25,7 @@ all: build-cairo
 cairo-build/Makefile: $(CAIRODIR)/configure
 	mkdir -p cairo-build
 	rm -rf cairo-build/*
-	cd cairo-build && ../$(CAIRODIR)/configure --prefix=/SDK/local/newlib $(HOSTARG) --disable-shared --enable-amigaos --enable-amigaos-font LIBS=-lauto
+	cd cairo-build && ../$(CAIRODIR)/configure --prefix=/SDK/local/newlib $(HOSTARG) --disable-shared --enable-amigaos --enable-amigaos-font LDFLAGS="-use-dynld -athread=single" LIBS=-lauto
 
 .PHONY: build-cairo
 build-cairo: cairo-build/Makefile
