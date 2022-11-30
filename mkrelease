@@ -2,12 +2,12 @@
 
 make all
 
-set cairodir cairo-1.14.10
+set cairover 1.14.10
+set cairodir cairo-$cairover
 set destdir RAM:mkrelease
-set numvers `date lformat %Y%m%d`
+set numvers $cairover
 
 delete all force ${destdir}
-makedir all force ${destdir}/cairo_lib-$numvers/Libs
 makedir all force ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
 makedir all force ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib/pkgconfig
 
@@ -22,8 +22,8 @@ copy clone ${cairodir}/src/cairo-ft.h ${destdir}/cairo_lib-$numvers/SDK/local/ne
 copy clone ${cairodir}/src/cairo-pdf.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
 copy clone ${cairodir}/src/cairo-ps.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
 copy clone ${cairodir}/src/cairo-script.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
-copy clone ${cairodir}/util/cairo-script/cairo-script-interpreter.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
 copy clone ${cairodir}/src/cairo-svg.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
+copy clone ${cairodir}/util/cairo-script/cairo-script-interpreter.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
 copy clone ${cairodir}/cairo-version.h ${destdir}/cairo_lib-$numvers/SDK/local/newlib/include/cairo
 copy clone cairo-build/src/.libs/libcairo.a ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib
 copy clone cairo-build/src/libcairo.la ${destdir}/cairo_lib-$numvers/SDK/local/newlib/lib
